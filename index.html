@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy"
+content="
+default-src 'self';
+style-src 'self' 'unsafe-inline';
+font-src 'self' data:;
+script-src 'self';
+img-src 'self' data:;
+">
+<title>Sistema de Matrícula</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/all.min.css"></head>
+<body>
+<div class="header">
+
+    <div class="titulo">
+        <i class="fa-solid fa-school"></i>
+        <h1>Sistema de Matrícula Escolar</h1>
+    </div>
+
+    <div class="acciones-superior">
+
+        <div class="buscador">
+            <i class="fa fa-search"></i>
+            <input type="text" id="buscar" placeholder="Buscar por nombre, cédula o grado">
+        </div>
+
+        <button id="btnAgregar">
+            <i class="fa fa-user-plus"></i>
+            Agregar estudiante
+        </button>
+
+    </div>
+
+</div>
+
+<!-- AQUI VA -->
+<div class="stats">
+  <div>Total estudiantes: <b id="totalEstudiantes">0</b></div>
+  <div>Pendientes: <b id="totalPendientes">0</b></div>
+  <div>Cancelados: <b id="totalCancelados">0</b></div>
+  <div>Abonados: <b id="totalAbonados">0</b></div>
+  <div>Total Matrículas: <b id="totalMatriculas">$0.00</b></div>
+  <div>Total Seguros: <b id="totalSeguros">$0.00</b></div>
+  <button id="btnRecuperar" class="btn-recuperar">
+    <i class="fas fa-undo"></i> Recuperar estudiantes
+  </button>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-contenido">
+        <h3>Registro de Estudiante</h3>
+        <form id="formEstudiante" autocomplete="off">
+        <div class="form-grid">
+
+            <div class="campo">
+                <label for="nombre">Nombres</label>
+                <input type="text" id="nombre" placeholder="Ej: Juan">
+            </div>
+
+            <div class="campo">
+                <label for="apellidos">Apellidos</label>
+                <input type="text" id="apellidos" placeholder="Ej: Pérez">
+            </div>
+
+            <div class="campo">
+                <label for="cedula">Cédula</label>
+                <input type="text" id="cedula" placeholder="Ej: 8-123-456">
+            </div>
+
+            <div class="campo">
+                <label for="sexo">Sexo</label>
+                <select id="sexo">
+                    <option value="">Seleccione el Sexo</option>
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                </select>             
+            </div>
+
+            <div class="campo">
+                <label for="correo">Correo</label>
+                <input type="text" id="correo" placeholder="correo@email.com">
+            </div>
+
+            <div class="campo">
+                <label for="hermano">Hermano</label>
+                <select id="hermano">
+                    <option value="">¿Tiene Hermanos en el plantel? SI/NO</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
+                </select>            
+            </div>
+
+            <div class="campo">
+                <label for="grado">Grado</label>
+                <input type="text" id="grado" placeholder="Ej: 5A">
+            </div>
+
+            <div class="campo">
+                <label for="cit">CIT</label>
+                <select id="cit">
+                    <option value="">¿Es de Aula Especial (CIT)?</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- REGISTRO NUEVO -->
+        <!-- ========================= -->
+
+        <div id="seccionNuevo">
+            <h4>Pagos</h4>
+            <div class="form-grid">
+
+                <div class="campo">
+                    <label for="pagado">Pago Matrícula</label>
+                    <input type="number" id="pagado" min="0" max="17" step="0.01" placeholder="Ej: 17.00">
+                </div>
+
+                <div class="campo">
+                    <label for="seguro">Pago Seguro</label>
+                    <input type="number" id="seguro"  min="0" max="4.50" step="0.01" placeholder="Ej: 4.50">
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- EDICIÓN -->
+        <!-- ========================= -->
+
+        <div id="seccionEdicion">
+
+            <h4>Pagos</h4>
+            <div class="grupo-pagos">
+                <h5>Matrícula</h5>
+
+                <div class="form-grid">
+
+                    <div class="campo">
+                        <label for="matriculaActual">Pagado</label>
+                        <input type="number" id="matriculaActual" readonly>
+                    </div>
+
+                    <div class="campo">
+                        <label for="nuevoPagoMatricula">Nuevo pago</label>
+                        <input type="number" id="nuevoPagoMatricula" placeholder="Monto Max. $17">
+                    </div>
+                </div>
+            </div>
+
+        <div class="grupo-pagos">
+
+            <h5>Seguro</h5>
+            <div class="form-grid">
+
+                <div class="campo">
+                    <label for="seguroActual">Pagado</label>
+                    <input type="number" id="seguroActual" readonly>
+                </div>
+
+                <div class="campo">
+                    <label for="nuevoPagoSeguro">Nuevo pago</label>
+                    <input type="number" id="nuevoPagoSeguro" placeholder="Monto Max. $4.50">
+                </div>
+            </div>
+        </div>
+
+        <div class="campo">
+            <label for="faltante">Faltante por pagar</label>
+            <input type="text" id="faltante" readonly>
+        </div>
+    </div>
+
+    <div class="modal-botones">
+        <button id="guardar" type="button">Guardar</button>
+        <button id="cancelar" type="button">Cancelar</button>
+    </div>
+</form>
+</div>
+</div>
+
+
+<div class="table-container">
+    <table id="tablaEstudiantes">
+        <thead>
+            <tr>
+                <th>ID</th><th>Cédula</th><th>Apellidos</th><th>Nombres</th>
+                <th>Sexo</th><th>Correo</th><th>Matrícula</th><th>Seguro</th>
+                <th>Grado</th><th>CIT</th><th>Hermano</th><th>Estado</th><th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+
+<!-- Contenedor de paginación -->
+<div id="paginacion" style="margin-top:12px; text-align:center;"></div>
+
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-box">
+
+    <div class="confirm-header">
+      <span>Confirmación</span>
+      <button id="confirmClose" class="confirm-close">✕</button>
+    </div>
+
+    <div class="confirm-body">
+      <span id="confirmText">¿Está seguro?</span>
+    </div>
+
+    <div class="confirm-buttons">
+      <button id="confirmYes">Aceptar</button>
+      <button id="confirmNo">Cancelar</button>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="alertModal" class="confirm-modal">
+  <div class="confirm-box">
+
+    <div class="confirm-header">
+      <span>Mensaje</span>
+      <button id="alertClose" class="confirm-close">✕</button>
+    </div>
+
+    <div class="confirm-body">
+      <span id="alertText"></span>
+    </div>
+
+    <div class="confirm-buttons">
+      <button id="alertOk">Aceptar</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="node_modules/xlsx/dist/xlsx.full.min.js"></script>
+<script src="node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+<script src="node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
+
+<script type="module" src="renderer/mainRenderer.js"></script>
+</body>
+</html>

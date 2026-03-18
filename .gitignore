@@ -1,0 +1,11 @@
+# Dependencias
+node_modules/
+
+# Carpeta build
+dist/
+*.exe
+*.dmg
+*.zip
+
+# Archivos temporales
+*.log
