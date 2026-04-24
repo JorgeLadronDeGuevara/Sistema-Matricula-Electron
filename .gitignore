@@ -9,3 +9,27 @@ dist/
 
 # Archivos temporales
 *.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# Sistema / OS
+.DS_Store
+Thumbs.db
+
+# Variables de entorno
+.env
+
+# Archivos de Electron build adicionales
+dist_electron/
+release/
+
+# Archivos de base de datos (IMPORTANTE en tu proyecto)
+*.sqlite
+*.db
+*.sqlite3
+
+# Caché
+.cache/
+
+.vscode/
