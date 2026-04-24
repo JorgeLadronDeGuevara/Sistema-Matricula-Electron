@@ -1,0 +1,909 @@
+/* estudiantes.css */
+
+/* =========================
+   REGISTRO DE ESTUDIANTE
+========================= */
+.tipo-registro-wrap {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.tipo-card {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.tipo-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tipo-card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 96px;
+  gap: 8px;
+  padding: 18px 18px;
+  border: 1px solid #dbe3ee;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  transition: all 0.22s ease;
+}
+
+.tipo-card-content strong {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.tipo-card-content span {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.tipo-card:hover .tipo-card-content {
+  border-color: #93c5fd;
+  background: #f8fbff;
+  transform: translateY(-1px);
+}
+
+.tipo-card input[type="radio"]:checked + .tipo-card-content {
+  border-color: #2563eb;
+  background: linear-gradient(180deg, #eff6ff, #dbeafe);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+}
+
+/* =========================
+   BLOQUES INFORMATIVOS DE MATRÍCULA
+========================= */
+#alumnoExistenteSeleccionado,
+#infoPeriodoMatriculaExistente,
+#infoPromocionSugerida {
+  min-height: 56px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+  border: 1px solid #dbe3ee;
+  color: #334155;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* =========================
+   HERMANOS
+========================= */
+.resultados-hermanos {
+  max-height: 180px;
+  overflow-y: auto;
+  border-radius: 10px;
+}
+
+.item-resultado-hermano {
+  background: #fff;
+}
+
+.hermanos-seleccionados {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-hermano-seleccionado {
+  background: #f8fafc;
+  border: 1px solid #dbe3ee !important;
+  border-radius: 10px !important;
+}
+
+.quitar-hermano {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.quitar-hermano:hover {
+  background: #fecaca;
+}
+
+/* =========================
+   RESPONSIVE ESTUDIANTES
+========================= */
+@media (max-width: 700px) {
+  .tipo-registro-wrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   ESTUDIANTES - BLOQUE LIMPIO Y COMPACTO
+========================================================= */
+#vista-estudiantes {
+  padding-top: 4px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.students-modern-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.students-modern-shell {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* HEADER */
+.students-modern-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 0;
+}
+
+.students-modern-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.students-modern-header-left h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.8px;
+  line-height: 1.05;
+}
+
+.students-modern-header-left p,
+.students-header-text {
+  margin: 0;
+  max-width: 680px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.students-modern-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.students-inline-meta,
+.students-period-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1px solid #dbe5f0;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.05);
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.students-inline-meta i,
+.students-period-chip i {
+  color: #2563eb;
+  font-size: 13px;
+}
+
+.students-inline-meta strong,
+.students-period-chip strong {
+  font-weight: 900;
+  color: #0f172a;
+}
+
+/* TOOLBAR */
+.students-toolbar-panel,
+.students-modern-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  border: 1px solid #dbe5f0;
+  border-radius: 16px;
+  box-shadow:
+    0 12px 28px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+.students-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  flex: 1;
+  min-width: 0px;
+}
+
+.students-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.students-search-box {
+  flex: 1 1 auto;
+  min-width: 220px;
+  max-width: none;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid #cfd9e6;
+  background: linear-gradient(180deg, #fdfefe, #f7fafc);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+  transition: all 0.22s ease;
+  overflow: hidden;
+}
+
+.students-search-box input[type="text"]:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.students-search-box:focus-within {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+.students-search-box i {
+  font-size: 15px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.students-search-box input[type="text"] {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.students-search-box input::placeholder {
+  color: #94a3b8;
+}
+
+.btn-toolbar {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+
+.btn-toolbar i {
+  font-size: 13px;
+}
+
+.btn-toolbar-soft {
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  color: #0f172a;
+  border: 1px solid #cfd9e6;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+.btn-toolbar-soft:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-toolbar-primary {
+  background: linear-gradient(180deg, #3b82f6, #2563eb);
+  color: #ffffff;
+  border: 1px solid #2563eb;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+}
+
+.btn-toolbar-primary:hover {
+  background: linear-gradient(180deg, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(37, 99, 235, 0.22);
+}
+
+/* PANEL TABLA */
+.students-data-panel,
+.students-modern-card {
+  position: relative;
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border: 1px solid #dbe5f0;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow:
+    0 14px 32px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.students-data-panel::before,
+.students-modern-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.22), transparent);
+}
+
+.students-panel-head,
+.students-modern-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid #e8eef5;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.96));
+}
+
+.students-panel-title h3,
+.students-modern-card-head h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.students-panel-title p,
+.students-modern-card-head p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.students-panel-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.students-page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.students-page-size select {
+  width: auto;
+  min-width: 70px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #dbe3ee;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* TABLA TIPO CARD */
+.students-table-wrap {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: none;
+  padding: 0 14px 14px;
+  background: #ffffff;
+}
+
+.students-modern-table {
+  width: 100%;
+  min-width: 1450px;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  background: #ffffff;
+}
+
+.students-modern-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 14px 14px;
+  background: #f8fbff;
+  color: #46627f;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+  border: none;
+  box-shadow: 0 1px 0 #e5edf5;
+}
+
+.students-modern-table thead th:first-child {
+  padding-left: 18px;
+}
+
+.students-modern-table tbody td {
+  padding: 14px 14px;
+  font-size: 13.5px;
+  color: #0f172a;
+  background: #f1f5f9;
+  border-top: 1px solid #d9e2ec;
+  border-bottom: 1px solid #d9e2ec;
+  white-space: nowrap;
+  vertical-align: middle;
+  transition: all 0.18s ease;
+}
+
+.students-modern-table tbody tr:hover td {
+  background: #eaf2ff;
+  border-color: #c7d7ee;
+}
+
+.students-modern-table tbody td:first-child {
+  padding-left: 18px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  border-left: 1px solid #d9e2ec;
+}
+
+.students-modern-table tbody td:last-child {
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  border-right: 1px solid #d9e2ec;
+}
+
+.students-modern-table tbody tr {
+  filter: drop-shadow(0 6px 14px rgba(15, 23, 42, 0.06));
+}
+
+.students-modern-table td:nth-child(1),
+.students-modern-table td:nth-child(5),
+.students-modern-table td:nth-child(7),
+.students-modern-table td:nth-child(8),
+.students-modern-table td:nth-child(9),
+.students-modern-table td:nth-child(10),
+.students-modern-table td:nth-child(11),
+.students-modern-table td:nth-child(12),
+.students-modern-table td:nth-child(13) {
+  text-align: center;
+}
+
+.students-modern-table .th-actions {
+  text-align: center;
+}
+
+/* BADGES */
+.badge-sexo,
+.badge-si,
+.badge-no,
+.badge-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  border: none;
+}
+
+.badge-sexo {
+  min-width: 30px;
+}
+
+.badge-sexo.m {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.badge-sexo.f {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.badge-si {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge-no {
+  background: #eef2f7;
+  color: #64748b;
+}
+
+.badge-estado {
+  min-width: 84px;
+}
+
+.badge-estado.pendiente {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.badge-estado.abonado {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.badge-estado.cancelado {
+  background: #d1fae5;
+  color: #059669;
+}
+
+/* ACCIONES */
+td.acciones,
+.acciones {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+td.acciones button {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: none;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+td.acciones button:hover {
+  transform: translateY(-1px);
+}
+
+.historial-btn {
+  color: #475569;
+}
+
+.historial-btn:hover {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.edit-btn {
+  color: #059669;
+}
+
+.edit-btn:hover {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.delete-btn {
+  color: #dc2626;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.recuperar-btn {
+  color: #2563eb;
+}
+
+.recuperar-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* =========================
+   PAGINACIÓN PREMIUM
+========================= */
+.students-modern-pagination,
+#paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.students-modern-pagination button,
+#paginacion button {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: none;
+  transition: all 0.18s ease;
+}
+
+.students-modern-pagination button:hover,
+#paginacion button:hover {
+  background: #eef4ff;
+  border-color: #dbeafe;
+  color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.students-modern-pagination button.active,
+#paginacion button.active {
+  background: linear-gradient(180deg, #3b82f6, #2563eb);
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.24);
+}
+
+.students-modern-pagination button:disabled,
+#paginacion button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.students-modern-pagination .pagination-dots,
+#paginacion .pagination-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  min-width: 24px;
+  height: 32px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  user-select: none;
+}
+
+.students-modern-pagination .nav-btn,
+#paginacion .nav-btn {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.students-modern-pagination .nav-btn:hover,
+#paginacion .nav-btn:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.students-modern-pagination .nav-btn:disabled,
+#paginacion .nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.students-modern-header,
+.students-toolbar-panel,
+.students-modern-toolbar,
+.students-data-panel,
+.students-modern-card {
+  animation: fadeCardIn 0.35s ease;
+}
+
+/* =========================
+   DROPDOWN EXPORTAR
+========================= */
+.dropdown-export {
+  position: relative;
+}
+
+#btnExportarMenu {
+  min-width: 150px;
+}
+
+.export-caret {
+  font-size: 11px;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-export.abierto .export-caret {
+  transform: rotate(180deg);
+}
+
+.dropdown-export-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 210px;
+  background: #ffffff;
+  border: 1px solid #dbe5f0;
+  border-radius: 14px;
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.14);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 100;
+}
+
+.dropdown-export-item {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  justify-content: flex-start;
+  box-shadow: none;
+  transition: background 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.dropdown-export-item i {
+  width: 16px;
+  text-align: center;
+  color: #2563eb;
+}
+
+.dropdown-export-item:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+  transform: none;
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .students-modern-header-left h2 {
+    font-size: 28px;
+  }
+
+  .students-toolbar-panel,
+  .students-modern-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .students-toolbar-left {
+    width: 100%;
+  }
+
+  .students-search-box {
+    max-width: 100%;
+  }
+
+  .students-toolbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .students-panel-head,
+  .students-modern-card-head {
+    align-items: stretch;
+  }
+
+  .students-panel-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 760px) {
+  .students-modern-header-left h2 {
+    font-size: 24px;
+  }
+
+  .students-modern-header-left p,
+  .students-header-text {
+    font-size: 13px;
+  }
+
+  .students-modern-header-right {
+    width: 100%;
+  }
+
+  .students-inline-meta,
+  .students-period-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .students-toolbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-toolbar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .students-panel-head,
+  .students-modern-card-head {
+    padding: 14px;
+  }
+
+  .students-panel-title h3,
+  .students-modern-card-head h3 {
+    font-size: 18px;
+  }
+
+  .students-panel-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

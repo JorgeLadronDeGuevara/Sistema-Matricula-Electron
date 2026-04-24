@@ -1,74 +1,136 @@
 // utils.js
 
-
-export function sanitizarTexto(texto){
-  return String(texto)
-    .replace(/[<>]/g,"")
-    .trim();
+export function formatearNumero(valor) {
+  return new Intl.NumberFormat("es-PA").format(valor);
 }
 
-// 🔹 FORMATO DE DINERO
-export function formatoDinero(valor){
-    return "$" + Number(valor || 0).toFixed(2);
+function aNumero(valor) {
+    const numero = Number(valor);
+    return Number.isFinite(numero) ? numero : 0;
 }
 
-export function escapeHTML(text){
-    return String(text)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+function normalizarTextoBasico(valor) {
+    return String(valor ?? "").trim();
 }
 
-export function calcularEstado(matricula, seguro, cit = "", hermano = ""){
-
-    const limites = obtenerLimites(cit, hermano);
-
-    const total = Number(matricula) + Number(seguro);
-
-    if(total === 0) return "Pendiente";
-    if(total >= limites.total) return "Cancelado";
-
-    return "Abonado";
+export function sanitizarTexto(texto) {
+    return normalizarTextoBasico(texto)
+        .replace(/[<>]/g, "")
+        .replace(/\s+/g, " ");
 }
 
-export function normalizarSiNo(valor){
-    if(!valor) return "";
+export function validarCedula(cedula) {
+    const valor = normalizarTextoBasico(cedula).toUpperCase();
+    return /^[A-Z0-9-]+$/.test(valor) && valor.length > 0;
+}
 
-    valor = valor.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+export function validarCorreo(correo) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizarTextoBasico(correo));
+}
 
-    if(valor === "si") return "Si";
-    if(valor === "no") return "No";
+export function formatoDinero(valor) {
+    const numero = aNumero(valor);
+
+    return "$" + new Intl.NumberFormat("es-PA", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(numero);
+}
+
+export function escapeHTML(text) {
+    return String(text ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+export function normalizarSiNo(valor) {
+    const texto = String(valor ?? "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (texto === "si") return "Si";
+    if (texto === "no") return "No";
 
     return "";
 }
 
-export function obtenerLimites(cit, hermano){
+export function obtenerDesglosePago(cti, _hermano, descuentoHermano = "No") {
+    const esCTI = normalizarSiNo(cti) === "Si";
+    const aplicaDescuentoHermano = normalizarSiNo(descuentoHermano) === "Si";
 
-    cit = normalizarSiNo(cit);
-    hermano = normalizarSiNo(hermano);
-
-    // CIT tiene prioridad
-    if(cit === "Si"){
+    // CTI tiene prioridad absoluta
+    if (esCTI) {
         return {
-            matricula: 3.50,
+            donacion: 2.50,
+            informatica: 0.00,
+            carnet: 1.00,
+            odontologia: 0.00,
             seguro: 4.50,
-            total: 8
+            matricula: 3.50,
+            total: 8.00,
+            tipo: "CTI"
         };
     }
 
-    if(hermano === "Si"){
+    // Los hermanos marcados con descuento_hermano="Si" no pagan donación
+    if (aplicaDescuentoHermano) {
         return {
-            matricula: 6.50,
+            donacion: 0.00,
+            informatica: 3.00,
+            carnet: 1.00,
+            odontologia: 3.00,
             seguro: 4.50,
-            total: 11
+            matricula: 7.00,
+            total: 11.50,
+            tipo: "HERMANO_DESCUENTO"
         };
     }
 
     return {
-        matricula: 17,
+        donacion: 10.00,
+        informatica: 3.00,
+        carnet: 1.00,
+        odontologia: 3.00,
         seguro: 4.50,
-        total: 21.50
+        matricula: 17.00,
+        total: 21.50,
+        tipo: "NORMAL"
     };
+}
+
+export function obtenerLimites(cti, hermano, descuentoHermano = "No") {
+    const desglose = obtenerDesglosePago(cti, hermano, descuentoHermano);
+
+    return {
+        matricula: desglose.matricula,
+        seguro: desglose.seguro,
+        total: desglose.total,
+        donacion: desglose.donacion,
+        informatica: desglose.informatica,
+        carnet: desglose.carnet,
+        odontologia: desglose.odontologia,
+        tipo: desglose.tipo
+    };
+}
+
+export function calcularEstado(pagado, seguro, cti, hermano, descuentoHermano = "No") {
+    const limites = obtenerLimites(cti, hermano, descuentoHermano);
+
+    const matriculaPagada = aNumero(pagado);
+    const seguroPagado = aNumero(seguro);
+
+    if (matriculaPagada >= limites.matricula && seguroPagado >= limites.seguro) {
+        return "Cancelado";
+    }
+
+    if ((matriculaPagada + seguroPagado) > 0) {
+        return "Abonado";
+    }
+
+    return "Pendiente";
 }

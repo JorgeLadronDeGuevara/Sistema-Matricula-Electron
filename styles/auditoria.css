@@ -1,0 +1,389 @@
+/* auditoria.css */
+
+/* =========================================================
+   AUDITORÍA MODERNA
+========================================================= */
+#vista-auditoria {
+  padding-top: 4px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.auditoria-modern-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.auditoria-modern-shell {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.auditoria-modern-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.auditoria-modern-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.auditoria-modern-header-left h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.8px;
+  line-height: 1.05;
+}
+
+.auditoria-modern-header-left p {
+  margin: 0;
+  max-width: 760px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.auditoria-modern-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.auditoria-inline-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1px solid #dbe5f0;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.05);
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.auditoria-inline-meta i {
+  color: #2563eb;
+  font-size: 13px;
+}
+
+.auditoria-toolbar-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px;
+  border: 1px solid #dbe7f3;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.05);
+}
+
+.auditoria-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.auditoria-search-box,
+.auditoria-select-box {
+  position: relative;
+}
+
+.auditoria-search-box i,
+.auditoria-select-box i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.auditoria-search-box input {
+  width: 320px;
+  height: 44px;
+  padding-left: 40px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #fdfefe, #f7fafc) !important;
+}
+
+.auditoria-select-box select {
+  width: 240px;
+  height: 44px;
+  padding-left: 40px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #fdfefe, #f7fafc) !important;
+}
+
+.auditoria-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auditoria-counter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #eff6ff, #dbeafe);
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.auditoria-data-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  border-radius: 24px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.auditoria-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 10px;
+}
+
+.auditoria-panel-title h3 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.4px;
+}
+
+.auditoria-panel-title p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.auditoria-table-wrap {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 14px 14px;
+  background: #ffffff;
+}
+
+.auditoria-modern-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  background: #ffffff;
+}
+
+.auditoria-modern-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 14px 14px;
+  background: #f8fbff;
+  color: #46627f;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  text-align: left;
+  border: none;
+  box-shadow: 0 1px 0 #e5edf5;
+}
+
+.auditoria-modern-table tbody td {
+  padding: 14px 14px;
+  font-size: 13.5px;
+  color: #0f172a;
+  background: #f8fafc;
+  border-top: 1px solid #d9e2ec;
+  border-bottom: 1px solid #d9e2ec;
+  white-space: nowrap;
+  vertical-align: middle;
+  transition: all 0.18s ease;
+}
+
+.auditoria-modern-table tbody tr:hover td {
+  background: #eef5ff;
+  border-color: #c7d7ee;
+}
+
+.auditoria-modern-table tbody td:first-child {
+  padding-left: 18px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  border-left: 1px solid #d9e2ec;
+}
+
+.auditoria-modern-table tbody td:last-child {
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  border-right: 1px solid #d9e2ec;
+}
+
+.auditoria-modern-table td:nth-child(1),
+.auditoria-modern-table td:nth-child(2),
+.auditoria-modern-table td:nth-child(3),
+.auditoria-modern-table td:nth-child(5) {
+  text-align: center;
+}
+
+.auditoria-modern-table td:nth-child(4) {
+  white-space: normal;
+  min-width: 420px;
+  line-height: 1.45;
+}
+
+.auditoria-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.auditoria-badge.insertar {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.auditoria-badge.actualizar {
+  background: #ffedd5;
+  color: #9a3412;
+  border-color: #fdba74;
+}
+
+.auditoria-badge.eliminar {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.auditoria-badge.recuperar {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.auditoria-badge.login {
+  background: #ccfbf1;
+  color: #0f766e;
+  border-color: #99f6e4;
+}
+
+.auditoria-badge.logout {
+  background: #e2e8f0;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.auditoria-badge.sistema {
+  background: #f3e8ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.auditoria-badge.alerta {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.auditoria-badge.default {
+  background: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+/* =========================
+   RESPONSIVE AUDITORÍA
+========================= */
+@media (max-width: 980px) {
+  .auditoria-toolbar-panel {
+    align-items: stretch;
+  }
+
+  .auditoria-toolbar-left,
+  .auditoria-toolbar-actions {
+    width: 100%;
+  }
+
+  .auditoria-toolbar-actions {
+    justify-content: flex-start;
+  }
+
+  .auditoria-search-box,
+  .auditoria-select-box {
+    width: 100%;
+  }
+
+  .auditoria-search-box input,
+  .auditoria-select-box select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .auditoria-modern-header-left h2 {
+    font-size: 24px;
+  }
+
+  .auditoria-modern-header-left p {
+    font-size: 13px;
+  }
+
+  .auditoria-table-wrap {
+    padding: 0 10px 10px;
+  }
+
+  .auditoria-data-panel {
+    border-radius: 20px;
+  }
+}

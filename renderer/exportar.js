@@ -2,28 +2,45 @@
 
 import { calcularEstado, formatoDinero } from "./utils.js";
 import { getEstudiantesGlobal } from "./state.js";
-import { mostrarAlerta } from "./ui.js";
+import { mostrarAlerta, mostrarToast } from "./ui.js";
 
-export function exportarTodosPDF(){
-
-    if(getEstudiantesGlobal().length === 0){
-        mostrarAlerta("No hay datos para exportar");        return;
-    }
-    exportarPDFPersonalizado(getEstudiantesGlobal(),"estudiantes.pdf");
+function obtenerDescuentoActual(est) {
+    return est?.descuento_hermano ?? est?.descuentoHermano ?? "No";
 }
 
-export function exportarPDFPorEstado(estado, nombreArchivo){
-
-    const lista = getEstudiantesGlobal().filter(e => calcularEstado(e.pagado, e.seguro, e.cit, e.hermano) === estado);
-
-    if(lista.length === 0){
-    mostrarAlerta(`No hay estudiantes en estado ${estado}`);        return;
+export function exportarTodosPDF() {
+    if (getEstudiantesGlobal().length === 0) {
+        mostrarAlerta("No hay datos para exportar");
+        return;
     }
 
-    exportarPDFPersonalizado(lista, nombreArchivo);
+    exportarPDFPersonalizado(
+        getEstudiantesGlobal(),
+        "estudiantes.pdf",
+        "PDF de estudiantes exportado correctamente."
+    );
 }
 
-export async function exportarPDFPersonalizado(lista,nombreArchivo){
+export function exportarPDFPorEstado(estado, nombreArchivo, mensajeExito = "PDF exportado correctamente.") {
+    const lista = getEstudiantesGlobal().filter(e =>
+        calcularEstado(
+            e.pagado,
+            e.seguro,
+            e.cti,
+            e.hermano,
+            obtenerDescuentoActual(e)
+        ) === estado
+    );
+
+    if (lista.length === 0) {
+        mostrarAlerta(`No hay estudiantes del período activo en estado ${estado}`);
+        return;
+    }
+
+    exportarPDFPersonalizado(lista, nombreArchivo, mensajeExito);
+}
+
+export async function exportarPDFPersonalizado(lista, nombreArchivo, mensajeExito = "PDF exportado correctamente.") {
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -45,10 +62,16 @@ export async function exportarPDFPersonalizado(lista,nombreArchivo){
         formatoDinero(e.pagado),
         formatoDinero(e.seguro),
         e.grado,
-        calcularEstado(e.pagado, e.seguro, e.cit, e.hermano)
+        calcularEstado(
+            e.pagado,
+            e.seguro,
+            e.cti,
+            e.hermano,
+            obtenerDescuentoActual(e)
+        )
     ]);
 
-    doc.text("Sistema de Matrícula Escolar", 14, 15);
+    doc.text("Sistema de Matrícula Escolar - Período activo", 14, 15);
 
     doc.autoTable({
         head:[columnas],
@@ -62,28 +85,47 @@ export async function exportarPDFPersonalizado(lista,nombreArchivo){
         filters:[{name:"PDF",extensions:["pdf"]}]
     });
 
-    if(ruta){
+    if (ruta) {
         const buffer = doc.output("arraybuffer");
-        await window.api.escribirArchivo({ ruta, data: buffer });
+        const res = await window.api.escribirArchivo({ ruta, data: buffer });
+
+        if (res?.success) {
+            mostrarToast(mensajeExito, "success");
+        } else {
+            mostrarAlerta(res?.message || "No se pudo guardar el PDF.");
+        }
     }
 }
 
-export function exportarPDFCancelados(){
-    exportarPDFPorEstado("Cancelado","cancelados.pdf");
+export function exportarPDFCancelados() {
+    exportarPDFPorEstado(
+        "Cancelado",
+        "cancelados.pdf",
+        "PDF de pagos cancelados exportado correctamente."
+    );
 }
 
-export function exportarPDFPendientes(){
-    exportarPDFPorEstado("Pendiente","deudores.pdf");
+export function exportarPDFPendientes() {
+    exportarPDFPorEstado(
+        "Pendiente",
+        "deudores.pdf",
+        "PDF de pagos pendientes exportado correctamente."
+    );
 }
 
-export function exportarPDFAbonados(){
-    exportarPDFPorEstado("Abonado","abonados.pdf");
+export function exportarPDFAbonados() {
+    exportarPDFPorEstado(
+        "Abonado",
+        "abonados.pdf",
+        "PDF de pagos abonados exportado correctamente."
+    );
 }
 
 export async function exportarExcelCompleto(){
 
     if(getEstudiantesGlobal().length === 0){
-    mostrarAlerta("No hay datos para exportar");        return;
+        mostrarAlerta("No hay datos para exportar");        
+        return;
     }
 
     const libro = XLSX.utils.book_new();
@@ -99,19 +141,51 @@ export async function exportarExcelCompleto(){
             Matricula: e.pagado,
             Seguro: e.seguro,
             Grado: e.grado,
-            CIT: e.cit,
+            CTI: e.cti,
             Hermano: e.hermano,
-            Estado: calcularEstado(e.pagado, e.seguro, e.cit, e.hermano)
+            Estado: calcularEstado(
+                e.pagado,
+                e.seguro,
+                e.cti,
+                e.hermano,
+                obtenerDescuentoActual(e)
+            )
         }));
 
         const hoja = XLSX.utils.json_to_sheet(datos);
         XLSX.utils.book_append_sheet(libro, hoja, nombre);
     }
 
-    const pendientes = getEstudiantesGlobal().filter(e => calcularEstado(e.pagado, e.seguro, e.cit, e.hermano) === "Pendiente");
-    const abonados  = getEstudiantesGlobal().filter(e => calcularEstado(e.pagado, e.seguro, e.cit, e.hermano) === "Abonado");
-    const cancelados = getEstudiantesGlobal().filter(e => calcularEstado(e.pagado, e.seguro, e.cit, e.hermano) === "Cancelado");
+    const pendientes = getEstudiantesGlobal().filter(e =>
+        calcularEstado(
+            e.pagado,
+            e.seguro,
+            e.cti,
+            e.hermano,
+            obtenerDescuentoActual(e)
+        ) === "Pendiente"
+    );
 
+    const abonados = getEstudiantesGlobal().filter(e =>
+        calcularEstado(
+            e.pagado,
+            e.seguro,
+            e.cti,
+            e.hermano,
+            obtenerDescuentoActual(e)
+        ) === "Abonado"
+    );
+
+    const cancelados = getEstudiantesGlobal().filter(e =>
+        calcularEstado(
+            e.pagado,
+            e.seguro,
+            e.cti,
+            e.hermano,
+            obtenerDescuentoActual(e)
+        ) === "Cancelado"
+    );
+    
     crearHoja(getEstudiantesGlobal(), "Todos");
     crearHoja(pendientes, "Pendientes");
     crearHoja(abonados, "Abonados");
@@ -123,11 +197,17 @@ export async function exportarExcelCompleto(){
         filters: [{ name: "Excel", extensions: ["xlsx"] }]
     });
 
-    if(ruta){
+    if (ruta) {
         const arrayBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array" });
-        await window.api.escribirArchivo({
+        const res = await window.api.escribirArchivo({
             ruta,
             data: arrayBuffer
-        });   
+        });
+
+        if (res?.success) {
+            mostrarToast("Excel exportado correctamente.", "success");
+        } else {
+            mostrarAlerta(res?.message || "No se pudo guardar el archivo Excel.");
+        }
     }
 }

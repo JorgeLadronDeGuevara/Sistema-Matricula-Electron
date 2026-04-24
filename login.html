@@ -1,46 +1,73 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
-<meta charset="UTF-8">
-<link rel="stylesheet" href="style.css">
-<title>Login</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <link rel="stylesheet" href="login.css" />
 </head>
-
 <body class="login-body">
 
-<div class="login-box">
+  <div class="login-wrapper">
+    <div class="login-box">
+      <div class="login-brand">
+        <div class="logo-badge">SE</div>
+        <div class="brand-text">
+          <h1>Sistema Escolar</h1>
+          <p>Acceso administrativo</p>
+        </div>
+      </div>
 
-<div class="logo">Sistema Escolar</div>
+      <div class="login-content">
+        <h2>Iniciar sesión</h2>
+        <p class="login-subtext">Ingrese sus credenciales para continuar</p>
 
-<h2>Iniciar sesión</h2>
+        <form id="loginForm" novalidate>
+          <div class="input-group">
+            <input
+              id="usuario"
+              type="text"
+              class="form-control"
+              placeholder="Usuario"
+              autocomplete="username"
+              required
+              aria-label="Usuario"
+            />
+          </div>
 
-<input id="usuario" class="form-control" placeholder="Usuario">
+          <div class="input-group">
+            <input
+              id="password"
+              type="password"
+              class="form-control"
+              placeholder="Contraseña"
+              autocomplete="current-password"
+              required
+              aria-label="Contraseña"
+            />
+          </div>
 
-<input id="password" type="password" class="form-control" placeholder="Contraseña">
-
-<button id="loginBtn" class="btn">Entrar</button>
-
-</div>
-
-<div id="alertModal" class="confirm-modal">
-  <div class="confirm-box">
-    <div class="confirm-header">
-      <span>Mensaje</span>
-      <button id="alertClose" class="confirm-close">✕</button>
-    </div>
-    <div class="confirm-body">
-      <span id="alertText"></span>
-    </div>
-    <div class="confirm-buttons">
-      <button id="alertOk">Aceptar</button>
+          <button id="loginBtn" type="submit" class="btn" disabled>Entrar</button>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
-<script type="module" src="login.js"></script>
+  <div id="alertModal" class="confirm-modal">
+    <div class="confirm-box">
+      <div class="confirm-header">
+        <span>Mensaje</span>
+        <button id="alertClose" type="button" class="confirm-close">✕</button>
+      </div>
+      <div class="confirm-body">
+        <span id="alertText"></span>
+      </div>
+      <div class="confirm-buttons">
+        <button id="alertOk" type="button">Aceptar</button>
+      </div>
+    </div>
+  </div>
 
+  <script type="module" src="login.js"></script>
 </body>
 </html>

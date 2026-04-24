@@ -1,29 +1,21 @@
 // mainRenderer.js
+
 import {
-    setEstudiantesGlobal, getEstudiantesGlobal,
-    setPaginaActual, getPaginaActual,
-    setFilasPorPagina, getFilasPorPagina,
-    getEstudianteEditando, setEstudianteEditando,
-    setModoEliminados, getModoEliminados
+    setEstudiantesGlobal,
+    setPaginaActual,
+    setModoEliminados,
+    getModoEliminados
 } from "./state.js";
 
 import {
-    sanitizarTexto,
-    escapeHTML,
-    formatoDinero,
-    normalizarSiNo,
-    calcularEstado,
-    obtenerLimites
-} from "./utils.js";
-
-import {
-    calcularFaltante,
-    validarPago
+    initSelectorHermanos,
+    initTipoRegistroModal,
+    abrirModalRegistro,
+    limpiarFormularioEstudiante
 } from "./modal.js";
 
 import {
     renderizarPagina,
-    renderizarBotonesPaginacion
 } from "./tabla.js";
 
 import {
@@ -31,61 +23,352 @@ import {
     exportarPDFAbonados,
     exportarPDFCancelados,
     exportarPDFPendientes,
-    exportarPDFPersonalizado,
-    exportarPDFPorEstado,
     exportarTodosPDF
 } from "./exportar.js";
 
-import { mostrarAlerta, confirmar } from "./ui.js";
+import { mostrarAlerta, mostrarToast, confirmar } from "./ui.js";
 
-let estudianteEditando = null;
+import { initPagos, sincronizarEstudiantePagoDesdeLista, mostrarAccionesComprobante } from "./pagos.js";
 
-const LIMITE_MATRICULA = 17;
-const LIMITE_SEGURO = 4.50;
-const TOTAL_PAGO = LIMITE_MATRICULA + LIMITE_SEGURO;
+import { actualizarStats, initDashboardCalendar } from "./dashboard.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+import {
+    cargarPeriodosEnUI,
+    limpiarFormularioPeriodo,
+    refrescarVistaPorPeriodo
+} from "./periodos.js";
 
-    const modal = document.getElementById("modal");
-    const btnAgregar = document.getElementById("btnAgregar");
-    const btnCancelar = document.getElementById("cancelar");
-    const btnGuardar = document.getElementById("guardar");
-    const inputBuscar = document.getElementById("buscar");
-    const tablaBody = document.querySelector("#tablaEstudiantes tbody");
-    modal.style.display = "none";
+import { initAuditoria } from "./auditoria.js";
 
-    // Inputs de agregar
-    const inputAgregarMatricula = document.getElementById("pagado");
-    const inputAgregarSeguro = document.getElementById("seguro");
+import {
+    initRematricula,
+    resetearEstadoRematricula
+} from "./rematricula.js";
 
-    // Inputs de editar
-    const inputEditarMatricula = document.getElementById("nuevoPagoMatricula");
-    const inputEditarSeguro = document.getElementById("nuevoPagoSeguro");
+import { initHistorialAcademico } from "./historialAcademico.js";
 
-    // AGREGAR
-    validarPago(inputAgregarMatricula, "matricula");
-    validarPago(inputAgregarSeguro, "seguro");
+import { initImportacionExcel } from "./importacionExcel.js";
 
-    // EDITAR
-    validarPago(inputEditarMatricula, "matricula", document.getElementById("matriculaActual"));
-    validarPago(inputEditarSeguro, "seguro", document.getElementById("seguroActual"));
+import { initAccionesEstudiantes } from "./accionesEstudiantes.js";
 
-    function actualizarLimitesInputs() {
-        const limites = obtenerLimites(
-            document.getElementById("cit").value,
-            document.getElementById("hermano").value
-        );
+import { initUsuarios } from "./usuarios.js";
 
-        inputAgregarMatricula.max = limites.matricula;
-        inputAgregarSeguro.max = limites.seguro;
+let ultimoComprobanteGenerado = null;
+let cierreSesionInicializado = false;
 
-        if (inputEditarMatricula) inputEditarMatricula.max = limites.matricula;
-        if (inputEditarSeguro) inputEditarSeguro.max = limites.seguro;
+
+async function validarSesionRenderer() {
+    try {
+        const res = await window.api.getSession();
+
+        if (!res?.logged || !res?.sesion?.usuario) {
+            window.location.replace("login.html");
+            return null;
+        }
+
+        return res.sesion;
+    } catch (error) {
+        console.error("Error validando sesión:", error);
+        window.location.replace("login.html");
+        return null;
     }
+}
+
+function pintarSesionEnSidebar(sesion) {
+    const nombre = document.getElementById("sidebarUsuarioNombre");
+    const rol = document.getElementById("sidebarUsuarioRol");
+
+    if (nombre) {
+        nombre.textContent = String(sesion?.usuario || "Sin sesión");
+    }
+
+    if (rol) {
+        rol.textContent = String(sesion?.rol || "usuario");
+    }
+}
+
+function initCerrarSesion() {
+    if (cierreSesionInicializado) return;
+    cierreSesionInicializado = true;
+
+    const btn = document.getElementById("btnCerrarSesionSidebar");
+    if (!btn) return;
+
+    btn.addEventListener("click", async () => {
+        const ok = await confirmar("¿Desea cerrar la sesión actual?");
+        if (!ok) return;
+
+        btn.disabled = true;
+
+        try {
+            const res = await window.api.logout();
+
+            if (!res?.success) {
+                mostrarAlerta(res?.message || "No se pudo cerrar la sesión.");
+                btn.disabled = false;
+                return;
+            }
+
+            window.location.replace("login.html");
+        } catch (error) {
+            console.error("Error cerrando sesión:", error);
+            mostrarAlerta("Ocurrió un error al cerrar la sesión.");
+            btn.disabled = false;
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const sesion = await validarSesionRenderer();
+    if (!sesion) return;
+
+    pintarSesionEnSidebar(sesion);
+    window.api.onSesionActualizada?.(pintarSesionEnSidebar);
+    initCerrarSesion();
+
+    const inputBuscar = document.getElementById("buscar");
+
+    const modalPeriodo = document.getElementById("modalPeriodo");
+    const btnNuevoPeriodo = document.getElementById("btnNuevoPeriodo");
+    const btnCancelarPeriodo = document.getElementById("cancelarPeriodo");
+    const btnGuardarPeriodo = document.getElementById("guardarPeriodo");
+    const selectorPeriodo = document.getElementById("selectorPeriodo");
+
+    const btnRegistrarEstudiante = document.getElementById("btnRegistrarEstudiante");
+    const btnCancelarRegistro = document.getElementById("btnCancelarRegistro");
+    const modal = document.getElementById("modal");
+
+    const btnImportarExcel = document.getElementById("btnImportarExcel");
+
+    const btnExportarMenu = document.getElementById("btnExportarMenu");
+    const menuExportar = document.getElementById("menuExportar");
+    const dropdownExport = document.querySelector(".dropdown-export");
+
+    const btnExportarExcel = document.getElementById("btnExportarExcel");
+    const btnExportarPDFTodos = document.getElementById("btnExportarPDFTodos");
+    const btnExportarPDFPendientes = document.getElementById("btnExportarPDFPendientes");
+    const btnExportarPDFAbonados = document.getElementById("btnExportarPDFAbonados");
+    const btnExportarPDFCancelados = document.getElementById("btnExportarPDFCancelados");
+
+    if (modalPeriodo) {
+        modalPeriodo.classList.remove("activo");
+    }
+
+    initPagos();
+    initSelectorHermanos();
+    initTipoRegistroModal();
+    initAuditoria();
+    initRematricula();
+    initHistorialAcademico();
+    initImportacionExcel();
+    initAccionesEstudiantes();
+    initDashboardCalendar();
+
+    if (String(sesion.rol || "").trim().toLowerCase() === "admin") {
+        initUsuarios();
+    } else {
+        document.querySelector('[data-modulo="usuarios"]')?.remove();
+        document.getElementById("vista-usuarios")?.remove();
+    }
+
+    btnImportarExcel?.addEventListener("click", async () => {
+        try {
+            await window.api.abrirDialogoExcel();
+        } catch (error) {
+            console.error("Error al abrir selector de Excel:", error);
+            mostrarAlerta("No se pudo abrir el selector de archivo Excel.");
+        }
+    });
+
+    btnExportarMenu?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        menuExportar?.classList.toggle("oculto");
+        dropdownExport?.classList.toggle("abierto");
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!dropdownExport?.contains(e.target)) {
+            menuExportar?.classList.add("oculto");
+            dropdownExport?.classList.remove("abierto");
+        }
+    });
+
+    btnExportarExcel?.addEventListener("click", async () => {
+        try {
+            await exportarExcelCompleto();
+        } catch (error) {
+            console.error("Error al exportar Excel:", error);
+            mostrarAlerta("No se pudo exportar el archivo Excel.");
+        } finally {
+            menuExportar?.classList.add("oculto");
+            dropdownExport?.classList.remove("abierto");
+        }
+    });
+
+    btnExportarPDFTodos?.addEventListener("click", async () => {
+        try {
+            await exportarTodosPDF();
+        } catch (error) {
+            console.error("Error al exportar PDF de todos:", error);
+            mostrarAlerta("No se pudo exportar el PDF de todos.");
+        } finally {
+            menuExportar?.classList.add("oculto");
+            dropdownExport?.classList.remove("abierto");
+        }
+    });
+
+    btnExportarPDFPendientes?.addEventListener("click", async () => {
+        try {
+            await exportarPDFPendientes();
+        } catch (error) {
+            console.error("Error al exportar PDF pendientes:", error);
+            mostrarAlerta("No se pudo exportar el PDF de pendientes.");
+        } finally {
+            menuExportar?.classList.add("oculto");
+            dropdownExport?.classList.remove("abierto");
+        }
+    });
+
+    btnExportarPDFAbonados?.addEventListener("click", async () => {
+        try {
+            await exportarPDFAbonados();
+        } catch (error) {
+            console.error("Error al exportar PDF abonados:", error);
+            mostrarAlerta("No se pudo exportar el PDF de abonados.");
+        } finally {
+            menuExportar?.classList.add("oculto");
+            dropdownExport?.classList.remove("abierto");
+        }
+    });
+
+    btnExportarPDFCancelados?.addEventListener("click", async () => {
+        try {
+            await exportarPDFCancelados();
+        } catch (error) {
+            console.error("Error al exportar PDF cancelados:", error);
+            mostrarAlerta("No se pudo exportar el PDF de cancelados.");
+        } finally {
+            menuExportar?.classList.add("oculto");
+            dropdownExport?.classList.remove("abierto");
+        }
+    });
+
+
+    btnRegistrarEstudiante?.addEventListener("click", () => {
+        abrirModalRegistro();
+    });
+
+    btnCancelarRegistro?.addEventListener("click", () => {
+        limpiarFormularioEstudiante();
+        if (modal) modal.classList.remove("activo");
+    });
+
+    const btnVerComprobante = document.getElementById("btnVerComprobante");
+
+
+    btnVerComprobante?.addEventListener("click", async () => {
+        if (!ultimoComprobanteGenerado) {
+            mostrarAlerta("No hay comprobante generado para visualizar.");
+            return;
+        }
+
+        btnVerComprobante.disabled = true;
+
+        try {
+            const res = await window.api.abrirVistaPreviaComprobante(ultimoComprobanteGenerado);
+
+            if (!res?.success) {
+                mostrarAlerta(res?.message || "No se pudo abrir la vista previa del comprobante.");
+            }
+        } catch (error) {
+            console.error(error);
+            mostrarAlerta("Ocurrió un error al abrir la vista previa.");
+        } finally {
+            btnVerComprobante.disabled = false;
+        }
+    });
+
+    btnNuevoPeriodo?.addEventListener("click", () => {
+        limpiarFormularioPeriodo();
+        if (modalPeriodo) modalPeriodo.classList.add("activo");
+    });
+
+    btnCancelarPeriodo?.addEventListener("click", () => {
+        if (modalPeriodo) modalPeriodo.classList.remove("activo");
+    });
+
+    btnGuardarPeriodo?.addEventListener("click", async () => {
+        const nombre = document.getElementById("nombrePeriodo")?.value.trim();
+        const fecha_inicio = document.getElementById("fechaInicioPeriodo")?.value || "";
+        const fecha_fin = document.getElementById("fechaFinPeriodo")?.value || "";
+
+        if (!nombre) {
+            mostrarAlerta("Debe ingresar el nombre del período.");
+            return;
+        }
+
+        btnGuardarPeriodo.disabled = true;
+
+        try {
+            const res = await window.api.crearPeriodoAcademico({
+                nombre,
+                fecha_inicio,
+                fecha_fin
+            });
+
+            if (!res?.success) {
+                mostrarAlerta(res?.message || "No se pudo crear el período.");
+                return;
+            }
+
+            if (modalPeriodo) modalPeriodo.classList.remove("activo");
+            await cargarPeriodosEnUI();
+            mostrarAlerta(`Período ${nombre} creado correctamente.`);
+        } catch (error) {
+            console.error("Error creando período:", error);
+            mostrarAlerta("Ocurrió un error al crear el período.");
+        } finally {
+            btnGuardarPeriodo.disabled = false;
+        }
+    });
+
+    selectorPeriodo?.addEventListener("change", async () => {
+        const periodoId = Number(selectorPeriodo.value);
+
+        if (!Number.isInteger(periodoId)) return;
+
+        selectorPeriodo.disabled = true;
+
+        try {
+            const res = await window.api.cambiarPeriodoActivo(periodoId);
+
+            if (!res?.success) {
+                mostrarAlerta(res?.message || "No se pudo cambiar el período activo.");
+                await cargarPeriodosEnUI();
+                return;
+            }
+
+            await refrescarVistaPorPeriodo({
+                onResetEstado: () => {
+                    ultimoComprobanteGenerado = null;
+                    resetearEstadoRematricula();
+                }
+            });
+
+        } catch (error) {
+            console.error("Error cambiando período activo:", error);
+            mostrarAlerta("Ocurrió un error al cambiar el período activo.");
+            await cargarPeriodosEnUI();
+        } finally {
+            selectorPeriodo.disabled = false;
+        }
+    });
+
+    
 
     const btnRecuperar = document.getElementById("btnRecuperar");
 
-    btnRecuperar.addEventListener("click", () => {
+    btnRecuperar?.addEventListener("click", () => {
         if (!getModoEliminados()) {
             window.api.traerEliminados();
             setModoEliminados(true);
@@ -104,227 +387,133 @@ document.addEventListener("DOMContentLoaded", () => {
         setEstudiantesGlobal(lista);
         setPaginaActual(1);
         renderizarPagina();
-    });
-
-    document.getElementById("cit").addEventListener("change", () => {
-        actualizarLimitesInputs();
-        calcularFaltante();
-    });
-
-    document.getElementById("hermano").addEventListener("change", () => {
-        actualizarLimitesInputs();
-        calcularFaltante();
-    });
-
-    // ===== FUNCIÓN PARA ACTUALIZAR ESTADÍSTICAS =====
-    function actualizarStats() {
-        const estudiantes = getEstudiantesGlobal();
-        let total = estudiantes.length;
-        let pendientes = 0;
-        let cancelados = 0;
-        let abonados = 0;
-        let totalMatriculas = 0;
-        let totalSeguros = 0;
-
-        estudiantes.forEach(est => {
-            const estadoReal = calcularEstado(est.pagado, est.seguro, est.cit, est.hermano);
-
-            if (estadoReal === "Pendiente") pendientes++;
-            else if (estadoReal === "Cancelado") cancelados++;
-            else if (estadoReal === "Abonado") abonados++;
-
-            totalMatriculas += Number(est.pagado) || 0;
-            totalSeguros += Number(est.seguro) || 0;
-        });
-
-        document.getElementById("totalEstudiantes").textContent = total;
-        document.getElementById("totalPendientes").textContent = pendientes;
-        document.getElementById("totalCancelados").textContent = cancelados;
-        document.getElementById("totalAbonados").textContent = abonados;
-        document.getElementById("totalMatriculas").textContent = "$" + totalMatriculas.toFixed(2);
-        document.getElementById("totalSeguros").textContent = "$" + totalSeguros.toFixed(2);
-    }
-
-    // ----- MODAL -----
-    btnAgregar.addEventListener("click", () => {
-        window.scrollTo(0, 0);
-        estudianteEditando = null;
-        document.getElementById("seccionNuevo").style.display = "block";
-        document.getElementById("seccionEdicion").style.display = "none";
-
-        ["cedula", "nombre", "apellidos", "sexo", "correo", "grado", "pagado", "seguro", "cit", "hermano"]
-            .forEach(id => document.getElementById(id).value = "");
-        ["cedula", "nombre", "apellidos", "sexo"].forEach(id => document.getElementById(id).disabled = false);
-
-        modal.style.display = "flex";
-        calcularFaltante();
-    });
-
-    btnCancelar.addEventListener("click", () => modal.style.display = "none");
-
-    btnGuardar.addEventListener("click", () => {
-        let matricula = 0;
-        let seguro = 0;
-
-        if (getEstudianteEditando()) {
-            const matriculaActual = Number(document.getElementById("matriculaActual").value) || 0;
-            const seguroActual = Number(document.getElementById("seguroActual").value) || 0;
-            const nuevoPagoMatricula = Number(document.getElementById("nuevoPagoMatricula").value) || 0;
-            const nuevoPagoSeguro = Number(document.getElementById("nuevoPagoSeguro").value) || 0;
-
-            const limites = obtenerLimites(
-                document.getElementById("cit").value,
-                document.getElementById("hermano").value
-            );
-
-            matricula = Math.min(matriculaActual + nuevoPagoMatricula, limites.matricula);
-            seguro = Math.min(seguroActual + nuevoPagoSeguro, limites.seguro);
-        } else {
-            const limites = obtenerLimites(
-                document.getElementById("cit").value,
-                document.getElementById("hermano").value
-            );
-
-            matricula = Math.min(Number(document.getElementById("pagado").value) || 0, limites.matricula);
-            seguro = Math.min(Number(document.getElementById("seguro").value) || 0, limites.seguro);
-        }
-
-        if (!getEstudianteEditando()) {
-            const cedulaValida = /^\d{1,2}-\d{3,4}-\d{3,4}$/.test(document.getElementById("cedula").value.trim());
-            const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById("correo").value.trim());
-
-            if (!document.getElementById("nombre").value.trim() ||
-                !document.getElementById("apellidos").value.trim() ||
-                !cedulaValida || !correoValido
-            ) {
-                mostrarAlerta("Verifique que nombres, apellidos, cédula y correo estén correctos.");                
-                return;
-            }
-        }
-
-        const estudiante = {
-            cedula: document.getElementById("cedula").value.trim(),
-            apellidos: document.getElementById("apellidos")?.value.trim() || "",
-            nombres: document.getElementById("nombre").value.trim(),
-            sexo: document.getElementById("sexo")?.value.trim() || "",
-            correo: document.getElementById("correo")?.value.trim() || "",
-            pagado: matricula,
-            seguro: seguro,
-            grado: document.getElementById("grado").value.trim(),
-            cit: document.getElementById("cit").value.trim(),
-            hermano: document.getElementById("hermano")?.value.trim() || "",
-            estado_pago: calcularEstado(
-                matricula,
-                seguro,
-                document.getElementById("cit").value,
-                document.getElementById("hermano").value
-            )
-        };
-
-        if (getEstudianteEditando()) {
-            estudiante.id = getEstudianteEditando().id;
-            window.api.actualizarEstudiante(estudiante);
-        } else {
-            window.api.insertarEstudiante(estudiante);
-        }
-
-        setEstudianteEditando(null);
-        modal.style.display = "none";
-
-        console.log("Estudiante enviado:", estudiante);
         actualizarStats();
     });
 
-    // ----- CARGA EXCEL -----
-    window.api.onCargarExcel(async (rutaArchivo) => {
-        const data = await window.api.leerArchivo(rutaArchivo);
-        const workbook = XLSX.read(new Uint8Array(data), { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const datos = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
+    
+    window.api.onEstudiantesInsertados?.((resumen) => {
+        console.log("IMPORTACION LISTENER MAINRENDERER", resumen);
+        console.log("Resumen de importación:", resumen);
 
-        if (datos.length > 5000) {
-            mostrarAlerta("El archivo Excel tiene demasiadas filas (máx 5000)");            
-            return;
+        const creadas = Number(resumen?.matriculasCreadas || 0);
+        const errores = Array.isArray(resumen?.errores) ? resumen.errores.length : 0;
+        const omitidos = Number(resumen?.omitidos || 0);
+
+        if (errores > 0) {
+            mostrarToast(
+                `Importación completada con observaciones. ${creadas} matrículas creadas, ${errores} errores.`,
+                "warning"
+            );
+        } else if (omitidos > 0) {
+            mostrarToast(
+                `Importación exitosa. ${creadas} matrículas creadas, ${omitidos} omitidas.`,
+                "success"
+            );
+        } else {
+            mostrarToast(
+                `Importación exitosa. ${creadas} matrículas creadas.`,
+                "success"
+            );
         }
 
-        const cedsExistentes = new Set(getEstudiantesGlobal().map(e => e.cedula));
-        const estudiantesExcel = datos
-            .map(d => ({
-                cedula: sanitizarTexto(d["Cedula"]),
-                apellidos: sanitizarTexto(d["Apellidos"]),
-                nombres: sanitizarTexto(d["Nombres"]),
-                sexo: sanitizarTexto(d["Sexo"]),
-                correo: sanitizarTexto(d["Correo"]),
-                pagado: Number(d["Matricula"] || 0),
-                seguro: Number(d["Seguro"] || 0),
-                grado: sanitizarTexto(d["Grado"]),
-                cit: normalizarSiNo(d["CIT"]),
-                hermano: normalizarSiNo(d["HERMANO"]),
-                estado_pago: calcularEstado(
-                    Number(d["Matricula"] || 0),
-                    Number(d["Seguro"] || 0),
-                    normalizarSiNo(d["CIT"]),
-                    normalizarSiNo(d["HERMANO"])
-                )
-            }))
-            .filter(e => !cedsExistentes.has(e.cedula));
+        window.api.traerEstudiantes();
+    });
 
-        if (estudiantesExcel.length > 0) {
-            window.api.insertarMuchosEstudiantes(estudiantesExcel);
+    window.api.onEstudianteInsertado?.(() => {
+        mostrarToast("Estudiante registrado correctamente.", "success");
+        window.api.traerEstudiantes();
+    });
+
+    window.api.onEstudianteActualizado?.(() => {
+    // 🚫 NO mostrar toast si viene de pago
+    if (!window.__pagoEnProcesoGlobal) {
+        mostrarToast("Estudiante actualizado correctamente.", "success");
+    }
+
+    window.api.traerEstudiantes();
+});
+
+    window.api.onComprobanteGenerado((comprobante) => {
+        ultimoComprobanteGenerado = comprobante;
+        mostrarAccionesComprobante();
+    });
+
+    refrescarVistaPorPeriodo({
+        onResetEstado: () => {
+            ultimoComprobanteGenerado = null;
+            resetearEstadoRematricula();
         }
     });
 
-    // ----- EXPORTACIONES -----
-    window.api.onExportarPDF(exportarTodosPDF);
-    window.api.onExportarPDFCancelados(exportarPDFCancelados);
-    window.api.onExportarPDFDeudores(exportarPDFPendientes);
-    window.api.onExportarPDFAbonados(exportarPDFAbonados);
-    window.api.onExportarExcel(exportarExcelCompleto);
+    window.api.onListaEstudiantes((lista) => {
+        setEstudiantesGlobal(lista);
+        setPaginaActual(1);
+        renderizarPagina();
+        actualizarStats();
 
-    // ----- TRAER ESTUDIANTES -----
-    // ----- TRAER ESTUDIANTES -----
+        const vistaPagosActiva = document
+        .getElementById("vista-pagos")
+        ?.classList.contains("activa");
 
-window.api.traerEstudiantes();
-
-window.api.onListaEstudiantes((lista) => {
-
-    setEstudiantesGlobal(lista);
-    setPaginaActual(1);
-
-    renderizarPagina();
-    actualizarStats();
-
-});
+        if (vistaPagosActiva) {
+            sincronizarEstudiantePagoDesdeLista(lista);
+        }
+    });
     
     // ----- BUSCADOR -----
     if (inputBuscar) {
-    inputBuscar.addEventListener("input", () => {
-        const termino = inputBuscar.value
-            .toLowerCase()
-            .replace(/[-°\s]/g, ""); // 🔥 normaliza igual que el backend
+        inputBuscar.addEventListener("input", () => {
+            const termino = String(inputBuscar.value || "").trim();
+            window.api.buscarEstudiantes(termino);
+        });
+    }
 
-        window.api.buscarEstudiantes(termino);
+    // ===== SIDEBAR / CAMBIO DE MÓDULOS =====
+    const sidebar = document.querySelector(".sidebar");
+
+    if (sidebar) {
+        const items = sidebar.querySelectorAll("li");
+        const vistas = document.querySelectorAll(".vista");
+        const titulo = document.getElementById("tituloModulo");
+
+        function activarModulo(modulo) {
+            vistas.forEach(v => v.classList.remove("activa"));
+            items.forEach(i => i.classList.remove("activo"));
+
+            const vista = document.getElementById("vista-" + modulo);
+            const item = sidebar.querySelector(`[data-modulo="${modulo}"]`);
+
+            if (vista) vista.classList.add("activa");
+            if (item) {
+                item.classList.add("activo");
+                if (titulo) {
+                    titulo.textContent = item.dataset.titulo || item.textContent.trim();
+                }
+            }
+        }
+
+        items.forEach(item => {
+            item.addEventListener("click", () => {
+                activarModulo(item.dataset.modulo);
+            });
+        });
+
+        // ✅ Siempre iniciar en Dashboard
+        activarModulo("dashboard");
+    }
+
+    const btnIrEstudiantes = document.getElementById("btnIrEstudiantes");
+    const btnIrPagos = document.getElementById("btnIrPagos");
+
+    btnIrEstudiantes?.addEventListener("click", () => {
+        const item = document.querySelector('[data-modulo="estudiantes"]');
+        item?.click();
     });
-}
+
+    btnIrPagos?.addEventListener("click", () => {
+        const item = document.querySelector('[data-modulo="pagos"]');
+        item?.click();
+    });
 
 });
 
-// ----- ELIMINAR ESTUDIANTE -----
-window.eliminarEstudiante = async function (id) {
-    const ok = await confirmar("¿Está seguro que desea eliminar este estudiante?");
-    if (!ok) return;    
-
-    const res = await window.api.eliminarEstudiante(id);
-
-    if (res?.success) {
-        window.api.traerEstudiantes();
-    }
-    return res;
-    //setTimeout(() => window.api.traerEstudiantes(), 200);
-};
-
-document.getElementById("nuevoPagoMatricula")?.addEventListener("input", calcularFaltante);
-document.getElementById("nuevoPagoSeguro")?.addEventListener("input", calcularFaltante);
-
-window.api.onEstudianteActualizado(() => window.api.traerEstudiantes());
-window.api.onEstudianteInsertado(() => window.api.traerEstudiantes());

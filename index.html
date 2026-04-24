@@ -5,250 +5,1090 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy"
 content="
-default-src 'self';
-style-src 'self' 'unsafe-inline';
-font-src 'self' data:;
+default-src 'self' data: blob:;
 script-src 'self';
-img-src 'self' data:;
+style-src 'self' 'unsafe-inline';
+img-src 'self' data: blob:;
+font-src 'self' data:;
+connect-src 'self';
+frame-src 'self' data: blob:;
+object-src 'none';
+base-uri 'self';
+form-action 'self';
 ">
 <title>Sistema de Matrícula</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="css/all.min.css"></head>
+<link rel="stylesheet" href="./styles/base.css">
+<link rel="stylesheet" href="./styles/layout.css">
+<link rel="stylesheet" href="./styles/components.css">
+<link rel="stylesheet" href="./styles/dashboard.css">
+<link rel="stylesheet" href="./styles/estudiantes.css">
+<link rel="stylesheet" href="./styles/pagos.css">
+<link rel="stylesheet" href="./styles/auditoria.css">
+<link rel="stylesheet" href="./styles/responsive.css">
+<link rel="stylesheet" href="./styles/usuarios.css">
+<link rel="stylesheet" href="./styles/historial.css">
+<link rel="stylesheet" href="css/all.min.css">
+</head>
 <body>
-<div class="header">
 
-    <div class="titulo">
-        <i class="fa-solid fa-school"></i>
-        <h1>Sistema de Matrícula Escolar</h1>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <i class="fas fa-school"></i>
+      </div>
+      <div class="sidebar-brand-text">
+        <h2>Sistema</h2>
+        <span>Panel Escolar</span>
+      </div>
     </div>
 
-    <div class="acciones-superior">
+    <ul class="sidebar-menu">
+      <li class="activo" data-modulo="dashboard" data-titulo="Dashboard">
+        <i class="fas fa-chart-line"></i>
+        <span>Dashboard</span>
+      </li>
 
-        <div class="buscador">
-            <i class="fa fa-search"></i>
-            <input type="text" id="buscar" placeholder="Buscar por nombre, cédula o grado">
+      <li data-modulo="estudiantes" data-titulo="Estudiantes">
+        <i class="fas fa-user-graduate"></i>
+        <span>Estudiantes</span>
+      </li>
+
+      <li data-modulo="pagos" data-titulo="Pagos">
+        <i class="fas fa-wallet"></i>
+        <span>Pagos</span>
+      </li>
+
+      <li data-modulo="auditoria" data-titulo="Auditoría">
+        <i class="fas fa-shield-alt"></i>
+        <span>Auditoría</span>
+      </li>
+
+      <li data-modulo="usuarios" data-titulo="Usuarios" id="menuUsuarios">
+        <i class="fas fa-users"></i>
+        <span>Usuarios</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user-card">
+        <div class="sidebar-user-avatar">
+          <i class="fas fa-user-shield"></i>
         </div>
 
-        <button id="btnAgregar">
-            <i class="fa fa-user-plus"></i>
-            Agregar estudiante
-        </button>
+        <div class="sidebar-user-info">
+          <span class="sidebar-user-label">Sesión activa</span>
+          <strong id="sidebarUsuarioNombre">Administrador</strong>
+          <small id="sidebarUsuarioRol">admin</small>
+        </div>
+      </div>
 
+      <button type="button" id="btnCerrarSesionSidebar" class="sidebar-logout-btn">
+        <i class="fas fa-right-from-bracket"></i>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="contenido">
+
+    <!-- HEADER -->
+
+    <!-- VISTAS -->
+    <div id="vista-dashboard" class="vista activa">
+  <section class="dashboard-pro-page">
+
+    <div class="dashboard-pro-header">
+      <div class="dashboard-pro-header-left">
+        <h2>Dashboard</h2>
+        <p>Vista general del estado del sistema, métricas del período y seguimiento académico.</p>
+      </div>
     </div>
 
+    <div class="dashboard-pro-layout">
+
+      <!-- COLUMNA PRINCIPAL -->
+      <div class="dashboard-main-column">
+
+        <div class="dashboard-section">
+          <div class="dashboard-section-head">
+            <h3>Resumen general</h3>
+          </div>
+
+          <div class="dashboard-stats-grid-pro">
+
+            <div class="dashboard-stat-pro stat-total">
+  <div class="dashboard-stat-top">
+    <span>Total estudiantes</span>
+  </div>
+  <strong id="dashTotalEstudiantes">0</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalEstudiantes">de 0 estudiantes</small>
+  <div class="dashboard-stat-ring" id="ringTotalEstudiantes">
+    <span id="ringTextTotalEstudiantes">0%</span>
+  </div>
 </div>
 
-<!-- AQUI VA -->
-<div class="stats">
-  <div>Total estudiantes: <b id="totalEstudiantes">0</b></div>
-  <div>Pendientes: <b id="totalPendientes">0</b></div>
-  <div>Cancelados: <b id="totalCancelados">0</b></div>
-  <div>Abonados: <b id="totalAbonados">0</b></div>
-  <div>Total Matrículas: <b id="totalMatriculas">$0.00</b></div>
-  <div>Total Seguros: <b id="totalSeguros">$0.00</b></div>
-  <button id="btnRecuperar" class="btn-recuperar">
-    <i class="fas fa-undo"></i> Recuperar estudiantes
-  </button>
+<div class="dashboard-stat-pro warning stat-pendientes">
+  <div class="dashboard-stat-top">
+    <span>Pagos pendientes</span>
+  </div>
+  <strong id="dashTotalPendientes">0</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalPendientes">de 0 estudiantes</small>
+  <div class="dashboard-stat-ring" id="ringPendientes">
+    <span id="ringTextPendientes">0%</span>
+  </div>
 </div>
 
-<div id="modal" class="modal">
-    <div class="modal-contenido">
-        <h3>Registro de Estudiante</h3>
+<div class="dashboard-stat-pro info stat-abonados">
+  <div class="dashboard-stat-top">
+    <span>Pagos abonados</span>
+  </div>
+  <strong id="dashTotalAbonados">0</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalAbonados">de 0 estudiantes</small>
+  <div class="dashboard-stat-ring" id="ringAbonados">
+    <span id="ringTextAbonados">0%</span>
+  </div>
+</div>
+
+<div class="dashboard-stat-pro success stat-cancelados">
+  <div class="dashboard-stat-top">
+    <span>Pagos cancelados</span>
+  </div>
+  <strong id="dashTotalCancelados">0</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalCancelados">de 0 estudiantes</small>
+  <div class="dashboard-stat-ring" id="ringCancelados">
+    <span id="ringTextCancelados">0%</span>
+  </div>
+</div>
+
+<div class="dashboard-stat-pro money stat-seguros">
+  <div class="dashboard-stat-top">
+    <span>Total seguros</span>
+  </div>
+  <strong id="dashTotalSeguros">$0.00</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalSeguros">de $0.00 total</small>
+  <div class="dashboard-stat-ring" id="ringSeguros">
+    <span id="ringTextSeguros">0%</span>
+  </div>
+</div>
+
+<div class="dashboard-stat-pro money stat-donaciones">
+  <div class="dashboard-stat-top">
+    <span>Total donaciones</span>
+  </div>
+  <strong id="dashTotalDonaciones">$0.00</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalDonaciones">de $0.00 total</small>
+  <div class="dashboard-stat-ring" id="ringDonaciones">
+    <span id="ringTextDonaciones">0%</span>
+  </div>
+</div>
+
+<div class="dashboard-stat-pro money stat-informatica">
+  <div class="dashboard-stat-top">
+    <span>Total informática</span>
+  </div>
+  <strong id="dashTotalInformatica">$0.00</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalInformatica">de $0.00 total</small>
+  <div class="dashboard-stat-ring" id="ringInformatica">
+    <span id="ringTextInformatica">0%</span>
+  </div>
+</div>
+
+<div class="dashboard-stat-pro money stat-carnet">
+  <div class="dashboard-stat-top">
+    <span>Total carnet</span>
+  </div>
+  <strong id="dashTotalCarnet">$0.00</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalCarnet">de $0.00 total</small>
+  <div class="dashboard-stat-ring" id="ringCarnet">
+    <span id="ringTextCarnet">0%</span>
+  </div>
+</div>
+
+<div class="dashboard-stat-pro money stat-odontologia">
+  <div class="dashboard-stat-top">
+    <span>Total odontología</span>
+  </div>
+  <strong id="dashTotalOdontologia">$0.00</strong>
+  <small class="dashboard-stat-subtext" id="dashSubTotalOdontologia">de $0.00 total</small>
+  <div class="dashboard-stat-ring" id="ringOdontologia">
+    <span id="ringTextOdontologia">0%</span>
+  </div>
+</div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANEL DERECHO -->
+      <aside class="dashboard-side-panel">
+
+        <div class="dashboard-side-card dashboard-period-card">
+          <div class="dashboard-side-card-head">
+            <h3>Período activo</h3>
+          </div>
+
+          <div class="dashboard-period-summary">
+            <div class="dashboard-period-badge">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+
+            <div class="dashboard-period-info">
+              <span>Período académico</span>
+              <strong id="periodoActivoTexto">2027 (Activo)</strong>
+            </div>
+          </div>
+
+          <div class="dashboard-period-controls">
+            <select id="selectorPeriodo" title="Seleccionar período académico">
+              <option value="2027">2027</option>
+            </select>
+
+            <button type="button" id="btnNuevoPeriodo" class="dashboard-mini-add-btn" title="Nuevo período">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="dashboard-side-card calendar-card">
+          <div class="dashboard-side-card-head">
+            <h3>Calendario</h3>
+          </div>
+
+          <div class="dashboard-calendar-month">
+            <button type="button" id="prevMonth" class="calendar-nav-btn">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <strong id="calendarMonthLabel">Abril 2026</strong>
+
+            <button type="button" id="nextMonth" class="calendar-nav-btn">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <div class="dashboard-calendar-grid" id="calendarGrid">
+            
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </section>
+</div>
+
+  <div id="vista-estudiantes" class="vista">
+    <section class="students-modern-page">
+      <div class="students-modern-shell">
+
+        <!-- HEADER -->
+        <div class="students-modern-header">
+          <div class="students-modern-header-left">
+            <h2>Gestión de estudiantes</h2>
+            <p class="students-header-text">
+              Administra matrículas, estados académicos y registros del período activo desde una vista clara y profesional.
+            </p>
+          </div>
+
+          <div class="students-modern-header-right">
+            <div class="students-inline-meta">
+              <i class="fas fa-calendar-alt"></i>
+              <span>Período activo: <strong id="studentsPeriodoActivo">-</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOOLBAR SUPERIOR -->
+        <div class="students-toolbar-panel">
+          <div class="students-toolbar-left">
+            <button id="btnImportarExcel" class="btn-toolbar btn-toolbar-soft" type="button">
+              <i class="fas fa-file-import"></i>
+              <span>Importar</span>
+            </button>
+
+            <div class="dropdown-export">
+              <button id="btnExportarMenu" class="btn-toolbar btn-toolbar-soft" type="button">
+                <i class="fas fa-file-export"></i>
+                <span>Exportar</span>
+                <i class="fas fa-chevron-down export-caret"></i>
+              </button>
+
+              <div id="menuExportar" class="dropdown-export-menu oculto">
+                <button type="button" id="btnExportarExcel" class="dropdown-export-item">
+                  <i class="fas fa-file-excel"></i>
+                  <span>Exportar Excel</span>
+                </button>
+
+                <button type="button" id="btnExportarPDFTodos" class="dropdown-export-item">
+                  <i class="fas fa-file-pdf"></i>
+                  <span>PDF todos</span>
+                </button>
+
+                <button type="button" id="btnExportarPDFPendientes" class="dropdown-export-item">
+                  <i class="fas fa-file-pdf"></i>
+                  <span>PDF pendientes</span>
+                </button>
+
+                <button type="button" id="btnExportarPDFAbonados" class="dropdown-export-item">
+                  <i class="fas fa-file-pdf"></i>
+                  <span>PDF abonados</span>
+                </button>
+
+                <button type="button" id="btnExportarPDFCancelados" class="dropdown-export-item">
+                  <i class="fas fa-file-pdf"></i>
+                  <span>PDF cancelados</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="students-search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="buscar" placeholder="Buscar por nombre, apellido o cédula">
+            </div>
+          </div>
+
+          <div class="students-toolbar-actions">
+            <button id="btnRecuperar" class="btn-toolbar btn-toolbar-soft" type="button">
+              <i class="fas fa-rotate-left"></i>
+              <span>Recuperar</span>
+            </button>
+
+            <button id="btnRegistrarEstudiante" class="btn-toolbar btn-toolbar-primary" type="button">
+              <i class="fas fa-user-plus"></i>
+              <span>Registrar estudiante</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- PANEL TABLA -->
+        <div class="students-data-panel">
+
+          <!-- CABECERA DEL PANEL -->
+          <div class="students-panel-head">
+            <div class="students-panel-title">
+              <h3>Listado general</h3>
+              <p>Consulta la información principal y realiza acciones rápidas por estudiante.</p>
+            </div>
+
+            <div class="students-panel-controls">
+              <div id="paginacion" class="students-modern-pagination">
+              
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLA -->
+          <div class="students-table-wrap">
+            <table id="tablaEstudiantes" class="students-modern-table">
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>Cédula</th>
+                  <th>Apellidos</th>
+                  <th>Nombres</th>
+                  <th>Sexo</th>
+                  <th>Correo</th>
+                  <th>Matrícula</th>
+                  <th>Seguro</th>
+                  <th>Grado</th>
+                  <th>CTI</th>
+                  <th>Hermano</th>
+                  <th>Pago</th>
+                  <th class="th-actions">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- render dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+    <div id="modal" class="modal">
+      <div class="modal-contenido">
+        <h3 id="tituloModal">Registrar Estudiante</h3>
+
         <form id="formEstudiante" autocomplete="off">
-        <div class="form-grid">
 
+          <div id="tipoRegistroWrap" class="tipo-registro-wrap">
+            <label class="tipo-card">
+              <input type="radio" name="tipoRegistro" value="nuevo" checked>
+              <div class="tipo-card-content">
+                <strong>Nuevo ingreso</strong>
+                <span>Para estudiantes que ingresan por primera vez al colegio.</span>
+              </div>
+            </label>
+
+            <label class="tipo-card">
+              <input type="radio" name="tipoRegistro" value="existente">
+              <div class="tipo-card-content">
+                <strong>Estudiante existente</strong>
+                <span>Para estudiantes que ya tienen historial en la institución.</span>
+              </div>
+            </label>
+          </div>
+
+          <div id="bloqueNuevoIngreso" class="form-grid">
             <div class="campo">
-                <label for="nombre">Nombres</label>
-                <input type="text" id="nombre" placeholder="Ej: Juan">
+              <label for="nombre">Nombres</label>
+              <input type="text" id="nombre" placeholder="Ej: Juan">
             </div>
 
             <div class="campo">
-                <label for="apellidos">Apellidos</label>
-                <input type="text" id="apellidos" placeholder="Ej: Pérez">
+              <label for="apellidos">Apellidos</label>
+              <input type="text" id="apellidos" placeholder="Ej: Pérez">
             </div>
 
             <div class="campo">
-                <label for="cedula">Cédula</label>
-                <input type="text" id="cedula" placeholder="Ej: 8-123-456">
+              <label for="cedula">Cédula</label>
+              <input type="text" id="cedula" placeholder="Ej: 8-123-456">
             </div>
 
             <div class="campo">
-                <label for="sexo">Sexo</label>
-                <select id="sexo">
-                    <option value="">Seleccione el Sexo</option>
-                    <option value="M">M</option>
-                    <option value="F">F</option>
-                </select>             
+              <label for="sexo">Sexo</label>
+              <select id="sexo">
+                <option value="">Seleccione el Sexo</option>
+                <option value="M">M</option>
+                <option value="F">F</option>
+              </select>
             </div>
 
             <div class="campo">
-                <label for="correo">Correo</label>
-                <input type="text" id="correo" placeholder="correo@email.com">
+              <label for="correo">Correo</label>
+              <input type="text" id="correo" placeholder="correo@email.com">
             </div>
 
             <div class="campo">
-                <label for="hermano">Hermano</label>
-                <select id="hermano">
-                    <option value="">¿Tiene Hermanos en el plantel? SI/NO</option>
-                    <option value="Si">Sí</option>
-                    <option value="No">No</option>
-                </select>            
+              <label for="hermano">Hermano</label>
+              <select id="hermano">
+                <option value="">¿Tiene Hermanos en el plantel? SI/NO</option>
+                <option value="Si">Sí</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+
+            <div id="panelHermanos" class="campo" style="display:none; grid-column: 1 / -1;">
+              <label>Seleccionar hermanos</label>
+              <input type="text" id="buscarHermano" placeholder="Buscar por nombre, apellido o cédula">
+              <div id="resultadosHermanos" class="resultados-hermanos" style="margin-top:8px;"></div>
+
+              <div style="margin-top:10px;">
+                <strong>Hermanos seleccionados:</strong>
+                <div id="hermanosSeleccionados" class="hermanos-seleccionados"></div>
+              </div>
+            </div>
+
+            <div class="campo" style="display:none;">
+              <label for="descuentoHermano">¿Este estudiante paga con descuento por hermano?</label>
+              <select id="descuentoHermano">
+                <option value="No">No aplica</option>
+                <option value="Si">Sí aplica</option>
+              </select>
             </div>
 
             <div class="campo">
-                <label for="grado">Grado</label>
-                <input type="text" id="grado" placeholder="Ej: 5A">
+              <label for="grado">Grado</label>
+              <input type="text" id="grado" placeholder="Ej: 5A">
             </div>
 
             <div class="campo">
-                <label for="cit">CIT</label>
-                <select id="cit">
-                    <option value="">¿Es de Aula Especial (CIT)?</option>
-                    <option value="Si">Sí</option>
-                    <option value="No">No</option>
+              <label for="cti">CTI</label>
+              <select id="cti">
+                <option value="">¿Es de Aula Especial (CTI)?</option>
+                <option value="Si">Sí</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="bloqueExistente" class="form-grid oculto">
+            <div class="campo" style="grid-column: 1 / -1;">
+              <label for="buscarAlumnoExistente">Buscar alumno</label>
+              <input type="text" id="buscarAlumnoExistente" placeholder="Buscar por nombre o cédula">
+              <div id="resultadosAlumnoExistente" class="resultados-hermanos" style="margin-top:8px;"></div>
+            </div>
+
+            <div class="campo" style="grid-column: 1 / -1;">
+              <label>Alumno seleccionado</label>
+              <div id="alumnoExistenteSeleccionado" class="hermanos-seleccionados"></div>
+            </div>
+
+            <div class="campo" style="grid-column: 1 / -1;">
+              <label>Período activo de matrícula</label>
+              <div id="infoPeriodoMatriculaExistente" class="hermanos-seleccionados">
+                <span>No hay período activo seleccionado.</span>
+              </div>
+            </div>
+
+            <div class="campo" style="grid-column: 1 / -1;">
+              <label>Historial académico reciente</label>
+              <div id="infoPromocionSugerida" class="hermanos-seleccionados">
+                <span>No hay información disponible.</span>
+              </div>
+            </div>
+
+            <div class="campo">
+              <label for="gradoAlumnoExistente">Grado</label>
+              <input type="text" id="gradoAlumnoExistente" placeholder="Ej: 8A">
+            </div>
+
+            <div class="campo">
+              <label for="ctiAlumnoExistente">CTI</label>
+              <select id="ctiAlumnoExistente">
+                <option value="">¿Es de Aula Especial (CTI)?</option>
+                <option value="Si">Sí</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="hermanoAlumnoExistente">Hermano</label>
+              <select id="hermanoAlumnoExistente">
+                <option value="">¿Tiene Hermanos en el plantel? SI/NO</option>
+                <option value="Si">Sí</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+
+            <div id="panelHermanosExistente" class="campo" style="display:none; grid-column: 1 / -1;">
+              <label>Seleccionar hermanos del período activo</label>
+              <input type="text" id="buscarHermanoExistente" placeholder="Buscar por nombre, apellido o cédula">
+              <div id="resultadosHermanosExistente" class="resultados-hermanos" style="margin-top:8px;"></div>
+
+              <div style="margin-top:10px;">
+                <strong>Hermanos seleccionados:</strong>
+                <div id="hermanosExistenteSeleccionados" class="hermanos-seleccionados"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-botones">
+            <button id="btnGuardarRegistro" type="button" class="btn btn-primary">Guardar</button>
+            <button id="btnCancelarRegistro" type="button" class="btn btn-secondary">Cancelar</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+
+    <div id="modalHistorialAcademico" class="modal">
+      <div class="modal-contenido modal-historial-academico">
+
+        <div class="historial-modal-header">
+          <div>
+            <h3>Historial académico</h3>
+            <p>Consulta el recorrido académico y estado de matrícula del estudiante.</p>
+          </div>
+
+          <button type="button" id="cerrarHistorialAcademicoX" class="modal-cerrar-historial">
+            &times;
+          </button>
+        </div>
+
+        <div class="historial-alumno-card">
+          <span class="historial-label">Estudiante</span>
+          <div id="infoAlumnoHistorial" class="historial-alumno-info">
+            <span>No hay estudiante seleccionado.</span>
+          </div>
+        </div>
+
+        <div class="historial-tabla-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Período</th>
+                <th>Grado</th>
+                <th>CTI</th>
+                <th>Hermano</th>
+                <th>Descuento</th>
+                <th>Matrícula</th>
+                <th>Seguro</th>
+                <th>Pago</th>
+                <th>Estado matrícula</th>
+              </tr>
+            </thead>
+            <tbody id="tablaHistorialAcademico">
+              <tr>
+                <td colspan="9" class="historial-vacio">No hay historial para mostrar.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="historial-modal-footer">
+          <button id="cerrarHistorialAcademico" type="button" class="btn btn-secondary">
+            Cerrar
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="confirmModal" class="confirm-modal">
+      <div class="confirm-box">
+        <div class="confirm-header">
+          <span>Confirmación</span>
+          <button id="confirmClose" class="confirm-close">✕</button>
+        </div>
+
+        <div class="confirm-body">
+          <span id="confirmText">¿Está seguro?</span>
+        </div>
+
+        <div class="confirm-buttons">
+          <button id="confirmYes" class="btn btn-primary">Aceptar</button>
+          <button id="confirmNo" class="btn btn-secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="alertModal" class="confirm-modal">
+      <div class="confirm-box">
+        <div class="confirm-header">
+          <span>Mensaje</span>
+          <button id="alertClose" class="confirm-close">✕</button>
+        </div>
+
+        <div class="confirm-body">
+          <span id="alertText"></span>
+        </div>
+
+        <div class="confirm-buttons">
+          <button id="alertOk" class="btn btn-primary">Aceptar</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="vista-pagos" class="vista">
+      <div class="pagos-modern-page">
+        <div class="pagos-modern-shell">
+
+          <div class="pagos-modern-header">
+            <div class="pagos-modern-header-left">
+              <h2>Registro de pagos</h2>
+              <p>Consulta, valida y registra pagos por conceptos de matrícula y seguro.</p>
+            </div>
+
+            <div class="pagos-modern-header-right">
+              <div class="pagos-period-chip">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Período activo: <strong id="pagosPeriodoActivo">2027</strong></span>
+              </div>
+
+              <div class="buscador-header">
+                <i class="fas fa-search"></i>
+                <input id="buscarPago" type="text" placeholder="Buscar por cédula o nombre">
+                <div id="resultadosBusquedaPago" class="resultados"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESUMEN -->
+          <div id="infoEstudiante" class="card pagos-resumen-card">
+            <div class="pagos-resumen-top">
+              <div class="pagos-avatar">
+                <i class="fas fa-user-graduate"></i>
+              </div>
+
+              <div class="pagos-identidad">
+                <h3 id="pNombre">—</h3>
+                <div class="pagos-meta">
+                  <span><strong>Cédula:</strong> <span id="pCedula">—</span></span>
+                  <span><strong>Grado:</strong> <span id="pGrado">—</span></span>
+                </div>
+              </div>
+
+              <div class="pagos-estado">
+                <span class="estado-pill" id="pillEstadoPago">Sin seleccionar</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GRID PRINCIPAL -->
+          <div class="pagos-main-grid">
+
+            <!-- DESGLOSE -->
+            <div class="card pagos-desglose-card">
+              <div class="pagos-historial-header">
+                <div>
+                  <h3>Desglose de matrícula</h3>
+                  <p>Detalle de conceptos, pagos realizados y faltantes del estudiante seleccionado.</p>
+                </div>
+              </div>
+
+              <div id="desglosePagoBox">
+                <div class="empty-pagos-state">
+                  <div class="empty-pagos-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                  </div>
+
+                  <h4>Sin estudiante seleccionado</h4>
+                  <p>
+                    Selecciona un estudiante desde el buscador para ver el desglose de matrícula,
+                    avances por concepto y estado de pago.
+                  </p>
+
+                  <div class="empty-pagos-guide">
+                    <span><i class="fas fa-search"></i> Busca por cédula o nombre</span>
+                    <span><i class="fas fa-hand-pointer"></i> Selecciona un estudiante</span>
+                    <span><i class="fas fa-wallet"></i> Registra el pago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FORMULARIO DE PAGO -->
+            <div id="panelPago" class="card pagos-form-card oculto">
+              <div class="pagos-form-header">
+                <div>
+                  <h3>Registrar pago</h3>
+                  <p>Ingresa el monto a registrar para cada concepto disponible.</p>
+                </div>
+              </div>
+
+              <div class="form-grid pagos-form-grid">
+                <div class="campo pago-campo">
+                  <label for="pagoDonacion">Nuevo pago donación</label>
+                  <input type="text" id="pagoDonacion" inputmode="decimal" autocomplete="off" placeholder="0.00">
+                  <span id="maxPagoDonacion" class="error"></span>
+                </div>
+
+                <div class="campo pago-campo">
+                  <label for="pagoInformatica">Nuevo pago informática</label>
+                  <input type="text" id="pagoInformatica" inputmode="decimal" autocomplete="off" placeholder="0.00">
+                  <span id="maxPagoInformatica" class="error"></span>
+                </div>
+
+                <div class="campo pago-campo">
+                  <label for="pagoCarnet">Nuevo pago carnet</label>
+                  <input type="text" id="pagoCarnet" inputmode="decimal" autocomplete="off" placeholder="0.00">
+                  <span id="maxPagoCarnet" class="error"></span>
+                </div>
+
+                <div class="campo pago-campo">
+                  <label for="pagoOdontologia">Nuevo pago odontología</label>
+                  <input type="text" id="pagoOdontologia" inputmode="decimal" autocomplete="off" placeholder="0.00">
+                  <span id="maxPagoOdontologia" class="error"></span>
+                </div>
+
+                <div class="campo pago-campo pago-campo-full">
+                  <label for="pagoSeguro">Nuevo pago seguro</label>
+                  <input type="text" id="pagoSeguro" inputmode="decimal" autocomplete="off" placeholder="0.00">
+                  <span id="maxPagoSeguro" class="error"></span>
+                </div>
+              </div>
+
+              <div class="pagos-acciones">
+                <button id="btnGuardarPago" type="button" class="btn-principal-pago">
+                  <i class="fas fa-save"></i>
+                  Guardar pago
+                </button>
+
+                <button id="btnVerComprobante" type="button" class="btn-secundario-pago oculto">
+                  <i class="fas fa-file-invoice"></i>
+                  Ver comprobante
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- HISTORIAL DE PAGOS -->
+          <div id="panelHistorialPagos" class="card pagos-historial-card oculto">
+            <div class="pagos-historial-header">
+              <div>
+                <h3>Historial de pagos</h3>
+                <p>Movimientos registrados del estudiante seleccionado.</p>
+              </div>
+            </div>
+
+            <div class="table-container historial-pagos-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>N°</th>
+                    <th>Fecha</th>
+                    <th>Comprobante</th>
+                    <th>Donación</th>
+                    <th>Informática</th>
+                    <th>Carnet</th>
+                    <th>Odontología</th>
+                    <th>Seguro</th>
+                    <th>Total</th>
+                    <th>Usuario</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaHistorialPagos">
+                  <tr>
+                    <td colspan="11" class="historial-vacio">Seleccione un estudiante para ver su historial.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div id="vista-auditoria" class="vista">
+      <section class="auditoria-modern-page">
+        <div class="auditoria-modern-shell">
+
+          <div class="auditoria-modern-header">
+            <div class="auditoria-modern-header-left">
+              <h2>Historial de acciones</h2>
+              <p class="auditoria-header-text">
+                Consulta eventos del sistema, movimientos de usuarios y cambios relevantes del período activo.
+              </p>
+            </div>
+
+            <div class="auditoria-modern-header-right">
+              <div class="auditoria-inline-meta">
+                <i class="fas fa-shield-alt"></i>
+                <span>Seguimiento administrativo</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="auditoria-toolbar-panel">
+            <div class="auditoria-toolbar-left">
+              <div class="auditoria-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="buscarAuditoria" placeholder="Buscar en descripción">
+              </div>
+
+              <div class="auditoria-select-box">
+                <i class="fas fa-filter"></i>
+                <select id="filtroAccion">
+                  <option value="">Todas</option>
+                  <option value="INSERTAR">Insertar</option>
+                  <option value="ACTUALIZAR">Actualizar</option>
+                  <option value="ELIMINAR">Eliminar</option>
+                  <option value="RECUPERAR">Recuperar</option>
+                  <option value="LOGIN">Login</option>
+                  <option value="LOGIN_FALLIDO">Login fallido</option>
+                  <option value="LOGIN_BLOQUEADO">Login bloqueado</option>
+                  <option value="LOGOUT">Logout</option>
+                  <option value="CREAR_PERIODO">Crear período</option>
+                  <option value="CAMBIAR_PERIODO">Cambiar período</option>
+                  <option value="BACKUP">Backup</option>
+                  <option value="RESTAURAR_BACKUP">Restaurar backup</option>
+                  <option value="IMPORTAR_EXCEL">Importar Excel</option>
+                  <option value="REGISTRAR_ESTUDIANTE">Registrar estudiante</option>
                 </select>
+              </div>
             </div>
+
+            <div class="auditoria-toolbar-actions">
+              <div class="auditoria-counter-chip">
+                <i class="fas fa-clock-rotate-left"></i>
+                <span id="auditoriaTotalRegistros">0 registros</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="auditoria-data-panel">
+            <div class="auditoria-panel-head">
+              <div class="auditoria-panel-title">
+                <h3>Listado general</h3>
+                <p>Revisa acciones, usuarios y descripciones registradas por el sistema.</p>
+              </div>
+            </div>
+
+            <div class="auditoria-table-wrap">
+              <table class="auditoria-modern-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Descripción</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaAuditoria">
+                  <tr>
+                    <td colspan="5" class="historial-vacio">No hay registros de auditoría para mostrar.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <section id="vista-usuarios" class="vista">
+      <div class="usuarios-modern-header">
+        <div class="usuarios-modern-header-left">
+          <h2>Gestión de usuarios</h2>
+          <p>Administra accesos, contraseñas y permisos del sistema.</p>
         </div>
 
-        <!-- ========================= -->
-        <!-- REGISTRO NUEVO -->
-        <!-- ========================= -->
+        <div class="usuarios-header-actions">
+          <button id="btnNuevoUsuario" class="btn-primario">
+            <i class="fas fa-user-plus"></i>
+            Crear usuario
+          </button>
+        </div>
+      </div>
 
-        <div id="seccionNuevo">
-            <h4>Pagos</h4>
-            <div class="form-grid">
+      <div class="usuarios-panel">
+        <div class="usuarios-toolbar">
+          <input
+            type="text"
+            id="buscarUsuario"
+            class="input-busqueda"
+            placeholder="Buscar por usuario o nombre"
+          />
 
-                <div class="campo">
-                    <label for="pagado">Pago Matrícula</label>
-                    <input type="number" id="pagado" min="0" max="17" step="0.01" placeholder="Ej: 17.00">
-                </div>
+          <select id="filtroRolUsuarios" class="select-filtro">
+            <option value="">Todos los roles</option>
+            <option value="admin">Admin</option>
+            <option value="usuario">Usuario</option>
+          </select>
 
-                <div class="campo">
-                    <label for="seguro">Pago Seguro</label>
-                    <input type="number" id="seguro"  min="0" max="4.50" step="0.01" placeholder="Ej: 4.50">
-                </div>
-
-            </div>
+          <select id="filtroEstadoUsuarios" class="select-filtro">
+            <option value="">Todos los estados</option>
+            <option value="1">Activos</option>
+            <option value="0">Inactivos</option>
+          </select>
         </div>
 
-        <!-- ========================= -->
-        <!-- EDICIÓN -->
-        <!-- ========================= -->
+        <div class="tabla-contenedor">
+          <table class="tabla-general" id="tablaUsuarios">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Nombre completo</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Creado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
 
-        <div id="seccionEdicion">
+            <tbody id="tablaUsuariosBody">
+              <tr>
+                <td colspan="7" class="tabla-vacia">
+                  No hay usuarios registrados.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-            <h4>Pagos</h4>
-            <div class="grupo-pagos">
-                <h5>Matrícula</h5>
+  </main>
+</div>
 
-                <div class="form-grid">
+<div id="toastPago" class="toast">
+  <i class="fas fa-check-circle"></i>
+  <span>Pago registrado correctamente.</span>
+</div>
 
-                    <div class="campo">
-                        <label for="matriculaActual">Pagado</label>
-                        <input type="number" id="matriculaActual" readonly>
-                    </div>
 
-                    <div class="campo">
-                        <label for="nuevoPagoMatricula">Nuevo pago</label>
-                        <input type="number" id="nuevoPagoMatricula" placeholder="Monto Max. $17">
-                    </div>
-                </div>
-            </div>
+<div id="modalPeriodo" class="modal">
+  <div class="modal-contenido modal-periodo">
+    <h3>Crear período académico</h3>
 
-        <div class="grupo-pagos">
-
-            <h5>Seguro</h5>
-            <div class="form-grid">
-
-                <div class="campo">
-                    <label for="seguroActual">Pagado</label>
-                    <input type="number" id="seguroActual" readonly>
-                </div>
-
-                <div class="campo">
-                    <label for="nuevoPagoSeguro">Nuevo pago</label>
-                    <input type="number" id="nuevoPagoSeguro" placeholder="Monto Max. $4.50">
-                </div>
-            </div>
+    <form id="formPeriodo" autocomplete="off">
+      <div class="form-grid">
+        <div class="campo">
+          <label for="nombrePeriodo">Nombre del período</label>
+          <input type="text" id="nombrePeriodo" placeholder="Ej: 2026">
         </div>
 
         <div class="campo">
-            <label for="faltante">Faltante por pagar</label>
-            <input type="text" id="faltante" readonly>
+          <label for="fechaInicioPeriodo">Fecha de inicio</label>
+          <input type="date" id="fechaInicioPeriodo">
         </div>
-    </div>
 
-    <div class="modal-botones">
-        <button id="guardar" type="button">Guardar</button>
-        <button id="cancelar" type="button">Cancelar</button>
-    </div>
-</form>
-</div>
-</div>
+        <div class="campo">
+          <label for="fechaFinPeriodo">Fecha de fin</label>
+          <input type="date" id="fechaFinPeriodo">
+        </div>
+      </div>
 
-
-<div class="table-container">
-    <table id="tablaEstudiantes">
-        <thead>
-            <tr>
-                <th>ID</th><th>Cédula</th><th>Apellidos</th><th>Nombres</th>
-                <th>Sexo</th><th>Correo</th><th>Matrícula</th><th>Seguro</th>
-                <th>Grado</th><th>CIT</th><th>Hermano</th><th>Estado</th><th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
-    </table>
+      <div class="modal-botones">
+        <button id="guardarPeriodo" type="button" class="btn btn-primary">Guardar período</button>
+        <button id="cancelarPeriodo" type="button" class="btn btn-secondary">Cancelar</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-<!-- Contenedor de paginación -->
-<div id="paginacion" style="margin-top:12px; text-align:center;"></div>
-
-<div id="confirmModal" class="confirm-modal">
-  <div class="confirm-box">
-
-    <div class="confirm-header">
-      <span>Confirmación</span>
-      <button id="confirmClose" class="confirm-close">✕</button>
+<div id="modalUsuario" class="modal">
+  <div class="modal-contenido modal-usuario">
+    <div class="modal-header">
+      <h2 id="tituloModalUsuario">Crear usuario</h2>
+      <button type="button" class="modal-cerrar" id="cerrarModalUsuario">&times;</button>
     </div>
 
-    <div class="confirm-body">
-      <span id="confirmText">¿Está seguro?</span>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="nombreCompletoUsuario">Nombre completo</label>
+          <input type="text" id="nombreCompletoUsuario" placeholder="Ej. María González" />
+        </div>
+
+        <div class="form-group">
+          <label for="usernameUsuario">Usuario</label>
+          <input type="text" id="usernameUsuario" placeholder="Ej. maria.gonzalez" />
+        </div>
+
+        <div class="form-group">
+          <label for="passwordUsuario">Contraseña</label>
+          <input type="password" id="passwordUsuario" placeholder="Ingrese una contraseña" />
+        </div>
+
+        <div class="form-group">
+          <label for="rolUsuario">Rol</label>
+          <select id="rolUsuario">
+            <option value="usuario">Usuario</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="activoUsuario">Estado</label>
+          <select id="activoUsuario">
+            <option value="1">Activo</option>
+            <option value="0">Inactivo</option>
+          </select>
+        </div>
+      </div>
     </div>
 
-    <div class="confirm-buttons">
-      <button id="confirmYes">Aceptar</button>
-      <button id="confirmNo">Cancelar</button>
+    <div class="modal-footer">
+      <button type="button" class="btn-secundario" id="btnCancelarUsuario">Cancelar</button>
+      <button type="button" class="btn-primario" id="btnGuardarUsuario">Guardar</button>
     </div>
-
   </div>
 </div>
 
 
-<div id="alertModal" class="confirm-modal">
-  <div class="confirm-box">
+<script src="./node_modules/xlsx/dist/xlsx.full.min.js"></script>
+<script src="./node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+<script src="./node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
 
-    <div class="confirm-header">
-      <span>Mensaje</span>
-      <button id="alertClose" class="confirm-close">✕</button>
-    </div>
-
-    <div class="confirm-body">
-      <span id="alertText"></span>
-    </div>
-
-    <div class="confirm-buttons">
-      <button id="alertOk">Aceptar</button>
-    </div>
-
-  </div>
-</div>
-
-<script src="node_modules/xlsx/dist/xlsx.full.min.js"></script>
-<script src="node_modules/jspdf/dist/jspdf.umd.min.js"></script>
-<script src="node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
-
-<script type="module" src="renderer/mainRenderer.js"></script>
+<script type="module" src="./renderer/mainRenderer.js"></script>
 </body>
 </html>

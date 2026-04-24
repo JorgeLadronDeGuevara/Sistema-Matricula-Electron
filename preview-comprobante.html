@@ -1,0 +1,497 @@
+<!-- preview_comprobante.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vista previa del comprobante</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #eef2f7;
+      color: #1f2937;
+      overflow: hidden;
+    }
+
+    .preview-page {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .topbar {
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+
+    .topbar-left h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .topbar-left p {
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .preview-area {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 14px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .sheet {
+      width: 820px;
+      min-width: 820px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      overflow: hidden;
+      border: 1px solid #dbe3ef;
+      zoom: 0.88;
+      transform-origin: top center;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: white;
+      padding: 22px 24px;
+    }
+
+    .header h1 {
+      margin: 0 0 6px 0;
+      font-size: 28px;
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 22px 24px 26px;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      background: #f9fafb;
+    }
+
+    .card h3 {
+      margin: 0 0 12px 0;
+      font-size: 15px;
+      color: #111827;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .row:last-child {
+      margin-bottom: 0;
+    }
+
+    .label {
+      color: #6b7280;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .value {
+      color: #111827;
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .section-title {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      color: #111827;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    thead {
+      background: #eff6ff;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    th:last-child,
+    td:last-child {
+      text-align: right;
+    }
+
+    .total-row td {
+      font-weight: 700;
+      background: #f9fafb;
+    }
+
+    .footer {
+      margin-top: 90px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+    }
+
+    .firma {
+      width: 260px;
+      padding-top: 55px;
+      border-top: 1px solid #111827;
+      text-align: center;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .nota {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+      max-width: 360px;
+    }
+
+    @media (max-width: 900px) {
+      .preview-area {
+        padding: 12px;
+      }
+
+      .sheet {
+        zoom: 0.78;
+      }
+
+      .content {
+        padding: 22px 20px 26px;
+      }
+
+      .header {
+        padding: 24px 20px;
+      }
+
+      .top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .topbar-actions {
+        justify-content: stretch;
+      }
+
+      .topbar-actions .btn {
+        flex: 1;
+      }
+
+      .row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .value {
+        text-align: left;
+      }
+
+      th,
+      td {
+        font-size: 13px;
+        padding: 11px 10px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 18mm;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      html, body {
+        height: auto;
+        overflow: visible;
+      }
+
+      body {
+        background: white !important;
+        color: #000 !important;
+      }
+
+      .topbar {
+        display: none !important;
+      }
+
+      .preview-page {
+        display: block;
+        height: auto;
+      }
+
+      .preview-area {
+        overflow: visible;
+        padding: 0;
+        display: block;
+      }
+
+      .sheet {
+        width: 100%;
+        max-width: 100%;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+
+      .header {
+        background: white !important;
+        color: #000 !important;
+        border-bottom: 2px solid #000;
+        text-align: center;
+      }
+
+      .header h1,
+      .header p {
+        color: #000 !important;
+      }
+
+      .header h1 {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+
+      .header p {
+        font-size: 12px;
+      }
+
+      .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+      }
+
+      .top-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      table {
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        color: #000 !important;
+        background: white !important;
+        border-bottom: 1px solid #000 !important;
+      }
+
+      thead th {
+        background: #fff !important;
+      }
+
+      .total-row td {
+        background: #fff !important;
+        font-weight: 700;
+      }
+
+      .nota,
+      .firma,
+      .label,
+      .value,
+      .section-title {
+        color: #000 !important;
+      }
+      .sheet {
+        font-size: 12px;
+      }
+
+
+      .section-title {
+        border-bottom: 1px solid #000;
+        padding-bottom: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .content {
+        min-height: calc(100vh - 140px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .footer {
+        margin-top: auto;
+      }
+
+      .firma {
+        width: 260px;
+        padding-top: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2>Vista previa del comprobante</h2>
+        <p>Revise el documento antes de enviarlo a impresión.</p>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="btn btn-secondary" id="btnDownload">Descargar comprobante</button>
+        <button class="btn btn-primary" id="btnPrint">Imprimir</button>
+        <button class="btn btn-secondary" id="btnClose">Cerrar</button>
+      </div>
+    </div>
+
+    <div class="preview-area">
+      <div class="sheet">
+        <div class="header">
+          <h1>Comprobante de Pago</h1>
+          <p>Sistema de Matrícula Escolar</p>
+        </div>
+
+        <div class="content">
+          <div class="top-grid">
+            <div class="card">
+              <h3>Datos del comprobante</h3>
+              <div class="row"><span class="label">Número</span><span class="value" id="numero"></span></div>
+              <div class="row"><span class="label">Fecha</span><span class="value" id="fecha"></span></div>
+              <div class="row"><span class="label">Registrado por</span><span class="value" id="usuario"></span></div>
+            </div>
+
+            <div class="card">
+              <h3>Datos del estudiante</h3>
+              <div class="row"><span class="label">Nombre</span><span class="value" id="nombre"></span></div>
+              <div class="row"><span class="label">Cédula</span><span class="value" id="cedula"></span></div>
+              <div class="row"><span class="label">Grado</span><span class="value" id="grado"></span></div>
+            </div>
+          </div>
+
+          <h3 class="section-title">Detalle del pago</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Monto</th>
+              </tr>
+            </thead>
+            <tbody id="detallePagoBody">
+              <tr>
+                <td colspan="2">Cargando detalle...</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <div class="nota">
+              Este documento certifica el registro del pago realizado en el sistema.
+              Conserve este comprobante para cualquier verificación administrativa.
+            </div>
+
+            <div class="firma">
+              Firma autorizada
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
