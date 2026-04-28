@@ -226,8 +226,9 @@ function inicializarBaseDeDatos() {
             db.run(`CREATE INDEX IF NOT EXISTS idx_comprobantes_pago_numero ON comprobantes_pago(numero_comprobante)`, manejarErrorIndice);
             db.run(`CREATE INDEX IF NOT EXISTS idx_comprobantes_pago_fecha ON comprobantes_pago(fecha)`, manejarErrorIndice);
 
-            const adminUsuario = "admin";
-            const adminPasswordPlano = "admin123";
+            const adminUsuario = process.env.ADMIN_USER || "demo";
+            const adminPasswordPlano = process.env.ADMIN_PASSWORD || "demo123"; // Solo para demo/portafolio
+
             const adminNombre = "Administrador del sistema";
             const adminRol = "admin";
             const ahora = new Date().toISOString();

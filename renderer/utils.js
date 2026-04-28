@@ -85,8 +85,8 @@ export function obtenerDesglosePago(cti, _hermano, descuentoHermano = "No") {
             carnet: 1.00,
             odontologia: 3.00,
             seguro: 4.50,
-            matricula: 7.00,
-            total: 11.50,
+            matricula: 4.00,
+            total: 8.50,
             tipo: "HERMANO_DESCUENTO"
         };
     }
@@ -97,8 +97,8 @@ export function obtenerDesglosePago(cti, _hermano, descuentoHermano = "No") {
         carnet: 1.00,
         odontologia: 3.00,
         seguro: 4.50,
-        matricula: 17.00,
-        total: 21.50,
+        matricula: 14.00,
+        total: 18.50,
         tipo: "NORMAL"
     };
 }

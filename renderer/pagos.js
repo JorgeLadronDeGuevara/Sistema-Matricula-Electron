@@ -545,16 +545,20 @@ function mostrarEstudiante({ cargarHistorial = true } = {}) {
     const pagos = obtenerPagosActuales(estudianteSeleccionado);
 
     const matriculaPagada =
-        pagos.donacion +
-        pagos.informatica +
-        pagos.carnet +
-        pagos.odontologia;
+    pagos.donacion +
+    pagos.informatica +
+    pagos.carnet;
 
     const seguroPagado = pagos.seguro;
 
-    const totalPagado = matriculaPagada + seguroPagado;
+    const totalPagado = obtenerTotalPagadoDetalle(estudianteSeleccionado);
 
-    const faltanteMatricula = Math.max(0, limites.matricula - matriculaPagada);
+    const totalMatriculaObligatoria =
+        Number(limites.donacion || 0) +
+        Number(limites.informatica || 0) +
+        Number(limites.carnet || 0);
+
+    const faltanteMatricula = Math.max(0, totalMatriculaObligatoria - matriculaPagada);
     const faltanteSeguro = Math.max(0, limites.seguro - seguroPagado);
     const faltante = faltanteMatricula + faltanteSeguro;
 
@@ -738,8 +742,7 @@ function guardarPago() {
     const nuevaMatricula =
         nuevoDonacion +
         nuevoInformatica +
-        nuevoCarnet +
-        nuevoOdontologia;
+        nuevoCarnet;
 
     const actualizado = {
         ...estudianteSeleccionado,
